@@ -42,7 +42,7 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
             size="lg" 
             variant="outline" 
             onClick={() => onNavigate('about')}
-            className="border-2 border-white text-white hover:bg-white hover:text-gray-800 px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+            className="border-2 border-white hover:bg-white hover:text-gray-800 px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
           >
             Join Our Community
           </Button>

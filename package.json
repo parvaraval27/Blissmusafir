@@ -1,6 +1,6 @@
 
   {
-      "name": "Design Travel Blog Website",
+      "name": "BlissMusafir",
       "version": "0.1.0",
       "private": true,
       "dependencies": {
@@ -49,6 +49,8 @@
       },
       "devDependencies": {
           "@types/node": "^20.10.0",
+          "@types/react": "^18.3.12",
+          "@types/react-dom": "^18.3.1",
           "@vitejs/plugin-react-swc": "^3.10.2",
           "vite": "6.3.5"
       },

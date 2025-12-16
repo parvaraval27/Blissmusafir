@@ -113,19 +113,19 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
               <TabsList className="grid w-full grid-cols-3 mb-8 bg-white shadow-sm">
                 <TabsTrigger 
                   value="latest" 
-                  className="data-[state=active]:bg-travel-teal data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                  className="data-[state=active]:bg-gray-200 data-[state=active]:text-gray-800 data-[state=active]:shadow-md transition-all duration-200"
                 >
                   Latest
                 </TabsTrigger>
                 <TabsTrigger 
                   value="popular" 
-                  className="data-[state=active]:bg-travel-teal data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                  className="data-[state=active]:bg-gray-200 data-[state=active]:text-gray-800 data-[state=active]:shadow-md transition-all duration-200"
                 >
                   Popular
                 </TabsTrigger>
                 <TabsTrigger 
                   value="categories" 
-                  className="data-[state=active]:bg-travel-teal data-[state=active]:text-white data-[state=active]:shadow-md transition-all duration-200"
+                  className="data-[state=active]:bg-gray-200 data-[state=active]:text-gray-800 data-[state=active]:shadow-md transition-all duration-200"
                 >
                   Categories
                 </TabsTrigger>

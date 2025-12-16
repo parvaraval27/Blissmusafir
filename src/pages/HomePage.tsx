@@ -14,7 +14,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
       <HeroSection onNavigate={onNavigate} />
       <FeaturedBlogs onNavigate={onNavigate} />
       <CategoryHighlight onNavigate={onNavigate} />
-      <AboutSection onNavigate={onNavigate} />
+      <AboutSection />
     </>
   );
 }
