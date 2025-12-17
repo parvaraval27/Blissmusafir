@@ -14,7 +14,7 @@ services:
       - key: MONGODB_URI
         sync: false  # You'll set this in Render dashboard
       - key: CORS_ORIGIN
-        value: https://your-frontend-url.onrender.com  # Update after frontend deploy
+        value: https://blissmusafir.vercel.app
 
   # Frontend Service  
   - type: web
@@ -25,8 +25,8 @@ services:
     staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
-        value: https://your-backend-url.onrender.com  # Update after backend deploy
+        value: https://blissmusafir-api.onrender.com  # Update after backend deploy
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://your-backend-url.onrender.com/api/*  # API proxy
+        destination: https://blissmusafir-api.onrender.com/api/*  # API proxy
