@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Clock, Eye, Globe } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
@@ -6,6 +6,8 @@ import { Button } from '../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Page } from '../components/Router';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { articleService } from '../services/articleService';
+import { Article } from '../lib/api';
 
 interface WorldPageProps {
   onNavigate: (page: Page, blogId?: string) => void;
@@ -14,17 +16,30 @@ interface WorldPageProps {
 export function WorldPage({ onNavigate }: WorldPageProps) {
   const [selectedContinent, setSelectedContinent] = useState('all');
   const [currentTab, setCurrentTab] = useState('latest');
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Get articles from localStorage
-  const getBlogs = () => {
-    const storedArticles = JSON.parse(localStorage.getItem('blogArticles') || '[]');
-    return storedArticles.filter((article: any) => article.category === 'World');
-  };
+  // Fetch articles from MongoDB
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const fetchedArticles = await articleService.getArticles('World');
+        setArticles(fetchedArticles);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const worldBlogs = getBlogs();
+    fetchArticles();
+  }, []);
 
-  const filteredBlogs = worldBlogs.filter((blog: any) => {
+  const filteredBlogs = articles.filter((blog) => {
     if (selectedContinent === 'all') return true;
+    if (selectedContinent === 'multiplecontinents') {
+      return blog.continent?.toLowerCase() === 'multiple';
+    }
     return blog.continent?.toLowerCase() === selectedContinent.toLowerCase();
   });
 
@@ -32,7 +47,18 @@ export function WorldPage({ onNavigate }: WorldPageProps) {
     return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
   });
 
-  const continents = ['Europe', 'Asia', 'North America', 'South America', 'Africa', 'Oceania'];
+  const continents = ['Europe', 'Asia', 'North America', 'South America', 'Africa', 'Oceania', 'Multiple Continents'];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-travel-beige flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-travel-teal mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading articles...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-travel-beige">
@@ -85,9 +111,11 @@ export function WorldPage({ onNavigate }: WorldPageProps) {
                   {continents.map((continent) => (
                     <Button 
                       key={continent} 
-                      variant="outline" 
-                      className="h-12 hover:bg-travel-teal hover:text-white transition-colors"
-                      onClick={() => setSelectedContinent(continent.toLowerCase())}
+                      variant={selectedContinent === continent.toLowerCase().replace(' ', '') ? 'default' : 'outline'}
+                      className={`h-12 hover:bg-travel-teal hover:text-white transition-colors ${
+                        selectedContinent === continent.toLowerCase().replace(' ', '') ? 'bg-teal-600 text-white' : ''
+                      }`}
+                      onClick={() => setSelectedContinent(continent.toLowerCase().replace(' ', ''))}
                     >
                       {continent}
                     </Button>
@@ -121,7 +149,7 @@ export function WorldPage({ onNavigate }: WorldPageProps) {
                 <SelectContent>
                   <SelectItem value="all">All Continents</SelectItem>
                   {continents.map(continent => (
-                    <SelectItem key={continent} value={continent.toLowerCase()}>
+                    <SelectItem key={continent} value={continent.toLowerCase().replace(' ', '')}>
                       {continent}
                     </SelectItem>
                   ))}

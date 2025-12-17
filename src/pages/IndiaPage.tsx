@@ -12,66 +12,6 @@ import { Article } from '../lib/api';
 interface IndiaPageProps {
   onNavigate: (page: Page, blogId?: string) => void;
 }
-
-const blogs = [
-  {
-    id: '1',
-    title: 'Taj Mahal: A Symbol of Love',
-    excerpt: 'Explore the stunning beauty of the Taj Mahal, a UNESCO World Heritage Site and one of the Seven Wonders of the Modern World.',
-    image: 'https://images.unsplash.com/photo-1685850749074-9cf8023d7e8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYSUyMHRyYXZlbCUyMGRlc3RpbmF0aW9ufGVufDF8fHx8MTc1OTg3MzE5Nnww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'India',
-    location: 'Agra, Uttar Pradesh',
-    author: 'Priya Sharma',
-    readTime: '8 min read',
-    views: 1205,
-    date: '2025-01-15',
-    tags: ['Architecture', 'History', 'UNESCO'],
-    isPopular: true
-  },
-  {
-    id: '2',
-    title: 'Kerala Backwaters: Floating Through Paradise',
-    excerpt: 'Journey through the serene waterways of God\'s Own Country and experience traditional houseboat life.',
-    image: 'https://images.unsplash.com/photo-1680599022555-57fb95b64b5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxrZXJhbGElMjBiYWNrd2F0ZXJzJTIwaW5kaWF8ZW58MXx8fHwxNzU5ODczMjQwfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'India',
-    location: 'Alleppey, Kerala',
-    author: 'Ravi Kumar',
-    readTime: '12 min read',
-    views: 892,
-    date: '2025-01-10',
-    tags: ['Nature', 'Waterways', 'Culture'],
-    isPopular: true
-  },
-  {
-    id: '3',
-    title: 'Rajasthan Desert Safari: Golden Dunes Adventure',
-    excerpt: 'Experience the magic of the Thar Desert with camel rides, folk music, and starlit nights.',
-    image: 'https://images.unsplash.com/photo-1685850749074-9cf8023d7e8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYSUyMHRyYXZlbCUyMGRlc3RpbmF0aW9ufGVufDF8fHx8MTc1OTg3MzE5Nnww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'India',
-    location: 'Jaisalmer, Rajasthan',
-    author: 'Arjun Singh',
-    readTime: '10 min read',
-    views: 756,
-    date: '2025-01-05',
-    tags: ['Desert', 'Adventure', 'Culture'],
-    isPopular: false
-  },
-  {
-    id: '4',
-    title: 'Himalayan Heights: Trekking in Ladakh',
-    excerpt: 'Journey to the roof of the world and discover the breathtaking landscapes of the Himalayas.',
-    image: 'https://images.unsplash.com/photo-1596693097925-9d818cc9692d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3VudGFpbiUyMGxhbmRzY2FwZSUyMG5jZW5pYyUyMHZpZXd8ZW58MXx8fHwxNzU5ODczMTk2fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'India',
-    location: 'Leh, Ladakh',
-    author: 'Maya Patel',
-    readTime: '15 min read',
-    views: 1034,
-    date: '2025-01-01',
-    tags: ['Mountains', 'Trekking', 'Adventure'],
-    isPopular: true
-  }
-];
-
 function IndiaBlogCard({ blog, onNavigate }: { blog: any; onNavigate: (page: Page, blogId?: string) => void }) {
   return (
     <div className="bg-white rounded-xl shadow-lg hover-lift cursor-pointer overflow-hidden group">
@@ -151,7 +91,9 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
 
   const filteredArticles = articles.filter((article) => {
     if (selectedTag === 'all') return true;
-    return article.tags?.includes(selectedTag);
+    return article.tags?.some(tag => 
+      tag.toLowerCase() === selectedTag.toLowerCase()
+    );
   });
 
   const sortedArticles = [...filteredArticles].sort((a, b) => {
@@ -166,7 +108,7 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
         article.tags.forEach((tag: string) => allTags.add(tag));
       }
     });
-    return Array.from(allTags);
+    return Array.from(allTags).sort();
   };
 
   const allTags = getAllTags();
@@ -231,8 +173,10 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
               <TabsContent value="tags" className="space-y-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
                   <Button 
-                    variant="outline" 
-                    className="h-12 hover:bg-travel-teal hover:text-white transition-colors"
+                    variant={selectedTag === 'all' ? 'default' : 'outline'}
+                    className={`h-12 hover:bg-travel-teal hover:text-white transition-colors ${
+                      selectedTag === 'all' ? 'bg-teal-600 text-white' : ''
+                    }`}
                     onClick={() => setSelectedTag('all')}
                   >
                     All Tags
@@ -240,18 +184,48 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
                   {allTags.map((tag) => (
                     <Button 
                       key={tag} 
-                      variant="outline" 
-                      className="h-12 hover:bg-travel-teal hover:text-white transition-colors"
+                      variant={selectedTag === tag ? 'default' : 'outline'}
+                      className={`h-12 hover:bg-travel-teal hover:text-white transition-colors ${
+                        selectedTag === tag ? 'bg-teal-600 text-white' : ''
+                      }`}
                       onClick={() => setSelectedTag(tag)}
                     >
                       {tag}
                     </Button>
                   ))}
                 </div>
+                
+                {selectedTag !== 'all' && (
+                  <div className="mb-6 flex items-center justify-between">
+                    <h3 className="text-lg font-medium">Showing articles tagged: {selectedTag}</h3>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setSelectedTag('all')}
+                      className="text-travel-teal hover:bg-travel-teal/10"
+                    >
+                      Clear filter
+                    </Button>
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedArticles.map((article) => (
-                    <IndiaBlogCard key={article.id} blog={article} onNavigate={onNavigate} />
-                  ))}
+                  {sortedArticles.length > 0 ? (
+                    sortedArticles.map((article) => (
+                      <IndiaBlogCard key={article.id} blog={article} onNavigate={onNavigate} />
+                    ))
+                  ) : (
+                    <div className="col-span-full text-center py-12">
+                      <p className="text-gray-500">No articles found with the selected tag.</p>
+                      <Button 
+                        variant="link" 
+                        className="mt-2 text-travel-teal"
+                        onClick={() => setSelectedTag('all')}
+                      >
+                        Show all articles
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
@@ -267,22 +241,27 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
           {/* Sidebar */}
           <div className="lg:w-80 space-y-6">
             {/* Tag Filter */}
-            <div className="bg-white p-6 rounded-xl shadow-lg">
-              <h3 className="font-serif text-xl mb-4">Filter by Tag</h3>
-              <Select value={selectedTag} onValueChange={setSelectedTag}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a tag" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Tags</SelectItem>
-                  {allTags.map(tag => (
-                    <SelectItem key={tag} value={tag}>
-                      {tag}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="space-y-6">
+  <div className="bg-white p-6 rounded-xl shadow-lg">
+    <h3 className="font-serif text-xl mb-4">Filter by Tag</h3>
+    <Select 
+      value={selectedTag} 
+      onValueChange={(value: string) => setSelectedTag(value)}
+    >
+      <SelectTrigger>
+        <SelectValue placeholder="All Tags" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">All Tags</SelectItem>
+        {allTags.map(tag => (
+          <SelectItem key={tag} value={tag}>
+            {tag}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+</div>
 
             {/* India Statistics */}
             <div className="bg-white p-6 rounded-xl shadow-lg">

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Upload, FileText, Link, Plus, X, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Upload, FileText, Plus, X, Check, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -10,8 +10,8 @@ import { Alert, AlertDescription } from '../components/ui/alert';
 import { Page } from '../components/Router';
 import { articleService } from '../services/articleService';
 import { Article } from '../lib/api';
-import { fixGoogleDriveUrl } from '../utils/googleDriveHelper';
 import mammoth from 'mammoth';
+import { uploadImageToCloudinary } from '../services/cloudinaryService';
 
 interface ParsedArticle {
   title: string;
@@ -25,11 +25,14 @@ interface ParsedArticle {
 
 export function AdminPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   const [docFile, setDocFile] = useState<File | null>(null);
-  const [googleDriveUrl, setGoogleDriveUrl] = useState<string>('');
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
   const [parsedArticle, setParsedArticle] = useState<ParsedArticle | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDocUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -38,6 +41,73 @@ export function AdminPage({ onNavigate }: { onNavigate: (page: Page) => void }) 
       setError(null);
     } else {
       setError('Please upload a valid DOC or DOCX file');
+    }
+  };
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        setError('Image size should be less than 10MB');
+        return;
+      }
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file));
+      setError(null);
+    }
+  };
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+  const generateArticle = async () => {
+    if (!parsedArticle || !selectedImage) {
+      setError('Please upload both a document and an image');
+      return;
+    }
+    setIsProcessing(true);
+    setError(null);
+    try {
+      // Upload image to Cloudinary
+      setIsUploading(true);
+      const imageUrl = await uploadImageToCloudinary(selectedImage);
+      setIsUploading(false);
+      // Create a new article object with Cloudinary URL
+      const newArticle: Omit<Article, 'id' | 'createdAt' | 'updatedAt'> = {
+        title: parsedArticle.title,
+        content: parsedArticle.content,
+        excerpt: parsedArticle.subtitle,
+        image: imageUrl,
+        category: parsedArticle.category,
+        location: parsedArticle.location || (parsedArticle.category === 'India' ? 'India' : 'Various Locations'),
+        author: 'Admin User',
+        readTime: `${Math.ceil(parsedArticle.content.replace(/<[^>]*>/g, '').length / 2000)} min read`,
+        views: 0,
+        date: new Date().toISOString().split('T')[0],
+        tags: parsedArticle.tags,
+        isPopular: false,
+        continent: parsedArticle.continent || (parsedArticle.category === 'World' ? 'Asia' : undefined)
+      };
+      // Save to MongoDB via API
+      await articleService.createArticle(newArticle);
+      setSuccess('Article created successfully! It has been added to the site.');
+      
+      // Reset form after delay
+      setTimeout(() => {
+        setDocFile(null);
+        setSelectedImage(null);
+        setImagePreview('');
+        setParsedArticle(null);
+        setSuccess(null);
+      }, 3000);
+    } catch (err) {
+      console.error('Error creating article:', err);
+      setError('Failed to create article. Please try again.');
+    } finally {
+      setIsProcessing(false);
+      setIsUploading(false);
     }
   };
 
@@ -139,56 +209,6 @@ export function AdminPage({ onNavigate }: { onNavigate: (page: Page) => void }) 
     return foundTags.slice(0, 5); // Limit to 5 tags
   };
 
-  const generateArticle = async () => {
-    if (!parsedArticle) return;
-
-    setIsProcessing(true);
-    setError(null);
-
-    try {
-      // Validate Google Drive URL
-      if (!googleDriveUrl.trim()) {
-        setError('Please provide a Google Drive URL for the article image');
-        return;
-      }
-
-      // Create a new article object
-      const newArticle: Omit<Article, 'id' | 'createdAt' | 'updatedAt'> = {
-        title: parsedArticle.title,
-        content: parsedArticle.content,
-        excerpt: parsedArticle.subtitle,
-        image: googleDriveUrl.trim(),
-        category: parsedArticle.category,
-        location: parsedArticle.location || (parsedArticle.category === 'India' ? 'India' : 'Various Locations'),
-        author: 'Admin User',
-        readTime: `${Math.ceil(parsedArticle.content.replace(/<[^>]*>/g, '').length / 200)} min read`,
-        views: 0,
-        date: new Date().toISOString().split('T')[0],
-        tags: parsedArticle.tags,
-        isPopular: false,
-        continent: parsedArticle.continent || (parsedArticle.category === 'World' ? 'Asia' : undefined)
-      };
-
-      // Save to MongoDB via API
-      await articleService.createArticle(newArticle);
-
-      setSuccess('Article created successfully! It has been added to the site.');
-      
-      // Reset form after delay
-      setTimeout(() => {
-        setDocFile(null);
-        setGoogleDriveUrl('');
-        setParsedArticle(null);
-        setSuccess(null);
-      }, 3000);
-    } catch (err) {
-      console.error('Error creating article:', err);
-      setError('Failed to create article. Please try again.');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -243,49 +263,65 @@ export function AdminPage({ onNavigate }: { onNavigate: (page: Page) => void }) 
               </CardContent>
             </Card>
 
-            {/* Google Drive URL Input */}
+            {/* CloudinaryInput */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Link className="h-5 w-5" />
-                  Google Drive Image URL
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="drive-url">Image URL from Google Drive</Label>
-                  <Input
-                    id="drive-url"
-                    type="url"
-                    placeholder="https://drive.google.com/file/d/..."
-                    value={googleDriveUrl}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setGoogleDriveUrl(e.target.value)}
-                    className="w-full"
-                  />
-                  <p className="text-xs text-gray-500">
-                    Upload your image to Google Drive, share it with "Anyone with the link", 
-                    and paste the direct link here. Make sure the link ends with a file extension or use 
-                    the direct download format.
-                  </p>
-                </div>
-
-                {googleDriveUrl && (
-                  <div className="mt-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">Image Preview:</p>
-                    <div className="border rounded-lg overflow-hidden">
-                      <img
-                        src={fixGoogleDriveUrl(googleDriveUrl)}
-                        alt="Google Drive preview"
-                        className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          console.error('Failed to load Google Drive image:', googleDriveUrl);
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+  <CardHeader>
+    <CardTitle className="flex items-center gap-2">
+      <ImageIcon className="h-5 w-5" />
+      Upload Article Image
+    </CardTitle>
+  </CardHeader>
+  <CardContent>
+    <div className="relative">
+      <div 
+        className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-50"
+        onClick={() => fileInputRef.current?.click()}
+      >
+        {imagePreview ? (
+          <div className="relative">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-full h-48 object-cover rounded"
+            />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Upload className="h-12 w-12 text-gray-400 mx-auto" />
+            <p className="text-sm text-gray-600">
+              Click to upload or drag and drop
+            </p>
+            <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+          </div>
+        )}
+      </div>
+      
+      {imagePreview && (
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          className="absolute -top-2 -right-2"
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+            e.stopPropagation();
+            removeImage();
+          }}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      )}
+      
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleImageUpload}
+        disabled={isUploading}
+      />
+    </div>
+  </CardContent>
+</Card>
           </div>
 
           {/* Content Preview */}
@@ -366,6 +402,7 @@ export function AdminPage({ onNavigate }: { onNavigate: (page: Page) => void }) 
                           <SelectItem value="South America">South America</SelectItem>
                           <SelectItem value="Oceania">Oceania</SelectItem>
                           <SelectItem value="Antarctica">Antarctica</SelectItem>
+                          <SelectItem value="Multiple">Multiple Continents</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -408,7 +445,7 @@ export function AdminPage({ onNavigate }: { onNavigate: (page: Page) => void }) 
                   <Button 
                     onClick={generateArticle} 
                     className="w-full"
-                    disabled={isProcessing || !parsedArticle || !googleDriveUrl.trim()}
+                     disabled={isProcessing || isUploading || !parsedArticle || !selectedImage}
                   >
                     {isProcessing ? (
                       <>
