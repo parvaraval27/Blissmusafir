@@ -55,7 +55,7 @@ export function BlogCard({ image, category, title, excerpt, author = "Anonymous 
           <Button 
             variant="ghost" 
             className="text-travel-teal hover:text-travel-teal-dark hover:bg-travel-teal/10 p-0 h-auto font-medium"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               onClick?.();
             }}

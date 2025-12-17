@@ -16,10 +16,7 @@ export function AboutSection() {
                 />
               </div>
               
-              {/* Decorative element */}
-              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-teal-100 rounded-full flex items-center justify-center shadow-lg">
-                <div className="text-teal-600 text-2xl">✈️</div>
-              </div>
+             
             </div>
           </div>
 
@@ -52,17 +49,6 @@ export function AboutSection() {
               </p>
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-4">
-              <div className="bg-white px-4 py-2 rounded-full shadow-sm">
-                <span className="text-stone-600">🌍 50+ Contributors</span>
-              </div>
-              <div className="bg-white px-4 py-2 rounded-full shadow-sm">
-                <span className="text-stone-600">📖 300+ Stories</span>
-              </div>
-              <div className="bg-white px-4 py-2 rounded-full shadow-sm">
-                <span className="text-stone-600">📸 15k+ Photos</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>

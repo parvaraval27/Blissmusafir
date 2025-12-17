@@ -1,4 +1,4 @@
-import { Mail, Instagram, Youtube, MapPin, Phone, Send, Heart } from 'lucide-react';
+import { Mail, Instagram, Youtube, Linkedin, MapPin, Phone, Send, Heart } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
@@ -22,7 +22,7 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
     {
       icon: Mail,
       title: 'Email',
-      value: 'hello@blissmusafir.com',
+      value: 'blissmusafir@gmail.com',
       description: 'Drop me a line anytime',
       color: 'bg-blue-500'
     },
@@ -31,14 +31,24 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
       title: 'Instagram',
       value: '@blissmusafir',
       description: 'Daily travel inspiration',
-      color: 'bg-pink-500'
+      color: 'bg-pink-500',
+      link: 'https://www.instagram.com/blissmusafir/'
     },
     {
       icon: Youtube,
       title: 'YouTube',
-      value: 'Bliss Musafir',
+      value: '@BlissMusafir',
       description: 'Travel vlogs & guides',
-      color: 'bg-red-500'
+      color: 'bg-red-500',
+      link: 'https://www.youtube.com/@BlissMusafir'
+    },
+    {
+      icon: Linkedin,
+      title: 'LinkedIn',
+      value: 'Bliss Musafir',
+      description: 'Professional network',
+      color: 'bg-blue-600',
+      link: 'https://www.linkedin.com/in/bliss-musafir-35bbb6317'
     }
   ];
 
@@ -157,7 +167,7 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
               <h2 className="font-serif text-3xl text-gray-900 mb-6">Other Ways to Reach Me</h2>
               <div className="space-y-4">
                 {contactInfo.map((info, index) => (
-                  <Card key={index} className="hover-lift cursor-pointer transition-all duration-300">
+                  <Card key={index} className="hover-lift cursor-pointer transition-all duration-300" onClick={() => info.link && window.open(info.link, '_blank')}>
                     <CardContent className="p-6">
                       <div className="flex items-center space-x-4">
                         <div className={`${info.color} p-3 rounded-full`}>

@@ -27,7 +27,7 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
         </h1>
         
         <p className="text-xl sm:text-2xl mb-8 text-stone-200 max-w-2xl mx-auto">
-          Discover hidden gems, share unforgettable stories, and let wanderlust guide your soul
+          Discover hidden gems, share unforgettable stories and let wanderlust guide your soul
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -41,7 +41,7 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
           <Button 
             size="lg" 
             variant="outline" 
-            onClick={() => onNavigate('about')}
+            onClick={() => onNavigate('contact')}
             className="border-2 border-white hover:bg-white hover:text-gray-800 px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
           >
             Join Our Community

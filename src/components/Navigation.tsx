@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, Settings } from 'lucide-react';
 import { Button } from './ui/button';
 import { SearchBar } from './SearchBar';
 import { Page } from './Router';
@@ -17,7 +17,6 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
     { label: 'Home', page: 'home' as Page },
     { label: 'India', page: 'india' as Page },
     { label: 'World', page: 'world' as Page },
-    { label: 'About', page: 'about' as Page },
     { label: 'Contact', page: 'contact' as Page }
   ];
 
@@ -68,17 +67,28 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
             </div>
           )}
 
-          {/* Search and Mobile Menu */}
+          {/* Search, Admin, and Mobile Menu */}
           <div className="flex items-center space-x-4">
             {!isSearchOpen && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-gray-700 hover:text-travel-teal"
-                onClick={() => setIsSearchOpen(true)}
-              >
-                <Search className="h-5 w-5" />
-              </Button>
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-500 hover:text-travel-teal"
+                  onClick={() => handleNavigation('admin')}
+                  title="Admin Panel"
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-700 hover:text-travel-teal"
+                  onClick={() => setIsSearchOpen(true)}
+                >
+                  <Search className="h-5 w-5" />
+                </Button>
+              </>
             )}
             
             {/* Mobile menu button */}

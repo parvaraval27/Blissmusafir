@@ -69,7 +69,14 @@ const mockBlogData = {
 };
 
 export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
-  const blog = mockBlogData; // In a real app, fetch based on blogId
+  // Try to get article from localStorage first, fallback to mock data
+  const getBlogData = () => {
+    const storedArticles = JSON.parse(localStorage.getItem('blogArticles') || '[]');
+    const article = storedArticles.find((article: any) => article.id === blogId);
+    return article || mockBlogData;
+  };
+
+  const blog = getBlogData();
 
   return (
     <div className="min-h-screen bg-travel-beige">
@@ -163,7 +170,7 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
             <div className="mb-8">
               <h3 className="font-serif text-lg mb-4">Tags</h3>
               <div className="flex flex-wrap gap-2">
-                {blog.tags.map((tag, index) => (
+                {blog.tags.map((tag: string, index: number) => (
                   <Badge key={index} variant="outline" className="hover:bg-travel-teal hover:text-white cursor-pointer">
                     {tag}
                   </Badge>
@@ -207,7 +214,7 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <h3 className="font-serif text-xl mb-4">Popular Posts</h3>
               <div className="space-y-4">
-                {blog.relatedPosts.map((post) => (
+                {blog.relatedPosts.map((post: any) => (
                   <div key={post.id} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors" onClick={() => onNavigate('blog', post.id)}>
                     <ImageWithFallback
                       src={post.image}
@@ -239,17 +246,17 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <h3 className="font-serif text-xl mb-4">Follow Our Journey</h3>
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline" className="hover:bg-travel-teal hover:text-white">
+                <Button variant="outline" className="hover:bg-travel-teal hover:text-white" onClick={() => window.open('https://www.instagram.com/blissmusafir/', '_blank')}>
                   Instagram
                 </Button>
-                <Button variant="outline" className="hover:bg-travel-teal hover:text-white">
+                <Button variant="outline" className="hover:bg-travel-teal hover:text-white" onClick={() => window.open('https://www.youtube.com/@BlissMusafir', '_blank')}>
                   YouTube
                 </Button>
-                <Button variant="outline" className="hover:bg-travel-teal hover:text-white">
-                  Pinterest
+                <Button variant="outline" className="hover:bg-travel-teal hover:text-white" onClick={() => window.open('https://www.linkedin.com/in/bliss-musafir-35bbb6317', '_blank')}>
+                  LinkedIn
                 </Button>
-                <Button variant="outline" className="hover:bg-travel-teal hover:text-white">
-                  Twitter
+                <Button variant="outline" className="hover:bg-travel-teal hover:text-white" onClick={() => window.open('mailto:blissmusafir@gmail.com', '_blank')}>
+                  Email
                 </Button>
               </div>
             </div>

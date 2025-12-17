@@ -206,6 +206,7 @@ export function AboutPage({ onNavigate }: AboutPageProps) {
             <Button 
               variant="outline" 
               className="border-white text-white hover:bg-white hover:text-travel-teal"
+              onClick={() => window.open('https://www.instagram.com/blissmusafir/', '_blank')}
             >
               Follow on Instagram
             </Button>

@@ -1,23 +1,24 @@
-import { useState } from 'react';
-import { MapPin, Clock, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MapPin, Clock, Eye, Globe } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Page } from '../components/Router';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { articleService } from '../services/articleService';
+import { Article } from '../lib/api';
 
 interface IndiaPageProps {
   onNavigate: (page: Page, blogId?: string) => void;
 }
 
-// Mock blog data
-const mockIndiaBlogs = [
+const blogs = [
   {
     id: '1',
-    title: 'Majestic Taj Mahal: A Love Story in Stone',
-    excerpt: 'Discover the timeless beauty and romantic history behind India\'s most iconic monument.',
-    image: 'https://images.unsplash.com/photo-1663918455395-49146be36cbb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0YWolMjBtYWhhbCUyMGluZGlhJTIwbGFuZG1hcmt8ZW58MXx8fHwxNzU5ODczMjM5fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    title: 'Taj Mahal: A Symbol of Love',
+    excerpt: 'Explore the stunning beauty of the Taj Mahal, a UNESCO World Heritage Site and one of the Seven Wonders of the Modern World.',
+    image: 'https://images.unsplash.com/photo-1685850749074-9cf8023d7e8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYSUyMHRyYXZlbCUyMGRlc3RpbmF0aW9ufGVufDF8fHx8MTc1OTg3MzE5Nnww&ixlib=rb-4.1.0&q=80&w=1080',
     category: 'India',
     location: 'Agra, Uttar Pradesh',
     author: 'Priya Sharma',
@@ -59,7 +60,7 @@ const mockIndiaBlogs = [
     id: '4',
     title: 'Himalayan Heights: Trekking in Ladakh',
     excerpt: 'Journey to the roof of the world and discover the breathtaking landscapes of the Himalayas.',
-    image: 'https://images.unsplash.com/photo-1596693097925-9d818cc9692d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3VudGFpbiUyMGxhbmRzY2FwZSUyMHNjZW5pYyUyMHZpZXd8ZW58MXx8fHwxNzU5ODczMTk2fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    image: 'https://images.unsplash.com/photo-1596693097925-9d818cc9692d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3VudGFpbiUyMGxhbmRzY2FwZSUyMG5jZW5pYyUyMHZpZXd8ZW58MXx8fHwxNzU5ODczMTk2fDA&ixlib=rb-4.1.0&q=80&w=1080',
     category: 'India',
     location: 'Leh, Ladakh',
     author: 'Maya Patel',
@@ -71,28 +72,122 @@ const mockIndiaBlogs = [
   }
 ];
 
+function IndiaBlogCard({ blog, onNavigate }: { blog: any; onNavigate: (page: Page, blogId?: string) => void }) {
+  return (
+    <div className="bg-white rounded-xl shadow-lg hover-lift cursor-pointer overflow-hidden group">
+      <div className="relative h-48 overflow-hidden">
+        <ImageWithFallback
+          src={blog.image}
+          alt={blog.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        <div className="absolute top-4 left-4">
+          <Badge className="bg-travel-gold text-white">India</Badge>
+        </div>
+        {blog.isPopular && (
+          <div className="absolute top-4 right-4">
+            <Badge className="bg-travel-teal text-white">Popular</Badge>
+          </div>
+        )}
+      </div>
+      <div className="p-6">
+        <div className="flex items-center text-sm text-travel-sage mb-2 space-x-4">
+          <div className="flex items-center">
+            <MapPin className="h-4 w-4 mr-1" />
+            {blog.location || 'India'}
+          </div>
+          <div className="flex items-center">
+            <Clock className="h-4 w-4 mr-1" />
+            {blog.readTime}
+          </div>
+          <div className="flex items-center">
+            <Eye className="h-4 w-4 mr-1" />
+            {blog.views || 0}
+          </div>
+        </div>
+        <h3 className="font-serif text-xl mb-3 line-clamp-2 group-hover:text-travel-teal transition-colors">
+          {blog.title}
+        </h3>
+        <p className="text-gray-600 line-clamp-3 mb-4">{blog.subtitle || blog.content?.replace(/<[^>]*>/g, '').substring(0, 150) + '...'}</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {(blog.tags || []).slice(0, 3).map((tag: string, index: number) => (
+            <Badge key={index} variant="outline" className="text-xs">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+        <Button 
+          onClick={() => onNavigate('blog', blog.id)}
+          className="w-full bg-travel-teal hover:bg-travel-teal-dark text-white"
+        >
+          Read More
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function IndiaPage({ onNavigate }: IndiaPageProps) {
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedTag, setSelectedTag] = useState('all');
   const [currentTab, setCurrentTab] = useState('latest');
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredBlogs = mockIndiaBlogs.filter(blog => {
-    if (selectedFilter === 'all') return true;
-    return blog.tags.some(tag => tag.toLowerCase().includes(selectedFilter.toLowerCase()));
+  // Fetch articles from MongoDB
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const fetchedArticles = await articleService.getArticles('India');
+        setArticles(fetchedArticles);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  const filteredArticles = articles.filter((article) => {
+    if (selectedTag === 'all') return true;
+    return article.tags?.includes(selectedTag);
   });
 
-  const sortedBlogs = [...filteredBlogs].sort((a, b) => {
-    if (currentTab === 'popular') {
-      return b.views - a.views;
-    }
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  const sortedArticles = [...filteredArticles].sort((a, b) => {
+    return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
   });
+
+  // Get unique tags from all articles
+  const getAllTags = () => {
+    const allTags = new Set<string>();
+    articles.forEach((article) => {
+      if (article.tags && Array.isArray(article.tags)) {
+        article.tags.forEach((tag: string) => allTags.add(tag));
+      }
+    });
+    return Array.from(allTags);
+  };
+
+  const allTags = getAllTags();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-travel-beige flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-travel-teal mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading articles...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-travel-beige">
       {/* Hero Banner */}
       <div className="relative h-96 overflow-hidden">
         <ImageWithFallback
-          src="https://images.unsplash.com/photo-1685850749074-9cf8023d7e8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYSUyMHRyYXZlbCUyMGRlc3RpbmF0aW9ufGVufDF8fHx8MTc1OTg3MzE5Nnww&ixlib=rb-4.1.0&q=80&w=1080"
+          src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080"
           alt="India Travel"
           className="w-full h-full object-cover"
         />
@@ -110,7 +205,7 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
           {/* Main Content */}
           <div className="flex-1">
             <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-8 bg-white shadow-sm">
+              <TabsList className="grid w-full grid-cols-2 mb-8 bg-white shadow-sm">
                 <TabsTrigger 
                   value="latest" 
                   className="data-[state=active]:bg-gray-200 data-[state=active]:text-gray-800 data-[state=active]:shadow-md transition-all duration-200"
@@ -118,51 +213,44 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
                   Latest
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="popular" 
+                  value="tags" 
                   className="data-[state=active]:bg-gray-200 data-[state=active]:text-gray-800 data-[state=active]:shadow-md transition-all duration-200"
                 >
-                  Popular
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="categories" 
-                  className="data-[state=active]:bg-gray-200 data-[state=active]:text-gray-800 data-[state=active]:shadow-md transition-all duration-200"
-                >
-                  Categories
+                  Tags
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="latest" className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedBlogs.map((blog) => (
-                    <BlogCard key={blog.id} blog={blog} onNavigate={onNavigate} />
+                  {sortedArticles.map((article) => (
+                    <IndiaBlogCard key={article.id} blog={article} onNavigate={onNavigate} />
                   ))}
                 </div>
               </TabsContent>
 
-              <TabsContent value="popular" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedBlogs.map((blog) => (
-                    <BlogCard key={blog.id} blog={blog} onNavigate={onNavigate} />
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="categories" className="space-y-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                  {['Architecture', 'Nature', 'Culture', 'Adventure', 'Mountains', 'Desert'].map((category) => (
+              <TabsContent value="tags" className="space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+                  <Button 
+                    variant="outline" 
+                    className="h-12 hover:bg-travel-teal hover:text-white transition-colors"
+                    onClick={() => setSelectedTag('all')}
+                  >
+                    All Tags
+                  </Button>
+                  {allTags.map((tag) => (
                     <Button 
-                      key={category} 
+                      key={tag} 
                       variant="outline" 
                       className="h-12 hover:bg-travel-teal hover:text-white transition-colors"
-                      onClick={() => setSelectedFilter(category.toLowerCase())}
+                      onClick={() => setSelectedTag(tag)}
                     >
-                      {category}
+                      {tag}
                     </Button>
                   ))}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedBlogs.map((blog) => (
-                    <BlogCard key={blog.id} blog={blog} onNavigate={onNavigate} />
+                  {sortedArticles.map((article) => (
+                    <IndiaBlogCard key={article.id} blog={article} onNavigate={onNavigate} />
                   ))}
                 </div>
               </TabsContent>
@@ -171,104 +259,71 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
             {/* Load More Button */}
             <div className="text-center mt-12">
               <Button className="bg-travel-teal hover:bg-travel-teal-dark text-white px-8 py-3">
-                Load More Stories
+                Load More Adventures
               </Button>
             </div>
           </div>
 
           {/* Sidebar */}
           <div className="lg:w-80 space-y-6">
-            {/* Filter */}
+            {/* Tag Filter */}
             <div className="bg-white p-6 rounded-xl shadow-lg">
               <h3 className="font-serif text-xl mb-4">Filter by Tag</h3>
-              <Select value={selectedFilter} onValueChange={setSelectedFilter}>
+              <Select value={selectedTag} onValueChange={setSelectedTag}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a tag" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Tags</SelectItem>
-                  <SelectItem value="architecture">Architecture</SelectItem>
-                  <SelectItem value="nature">Nature</SelectItem>
-                  <SelectItem value="culture">Culture</SelectItem>
-                  <SelectItem value="adventure">Adventure</SelectItem>
-                  <SelectItem value="mountains">Mountains</SelectItem>
-                  <SelectItem value="desert">Desert</SelectItem>
+                  {allTags.map(tag => (
+                    <SelectItem key={tag} value={tag}>
+                      {tag}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Popular Destinations */}
+            {/* India Statistics */}
             <div className="bg-white p-6 rounded-xl shadow-lg">
-              <h3 className="font-serif text-xl mb-4">Popular Destinations</h3>
+              <h3 className="font-serif text-xl mb-4">Travel Stats</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">States Visited</span>
+                  <span className="font-medium text-travel-teal">28</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Cities Explored</span>
+                  <span className="font-medium text-travel-teal">156</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Miles Traveled</span>
+                  <span className="font-medium text-travel-teal">45K+</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-600">Stories Shared</span>
+                  <span className="font-medium text-travel-teal">67</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Popular States */}
+            <div className="bg-white p-6 rounded-xl shadow-lg">
+              <h3 className="font-serif text-xl mb-4">Popular States</h3>
               <div className="space-y-3">
-                {['Goa Beaches', 'Manali Hill Station', 'Varanasi Ghats', 'Andaman Islands'].map((destination, index) => (
+                {['Rajasthan', 'Kerala', 'Himachal Pradesh', 'Goa', 'Uttarakhand', 'Tamil Nadu'].map((state, index) => (
                   <div key={index} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
-                    <span className="text-gray-700">{destination}</span>
-                    <Badge variant="secondary">{Math.floor(Math.random() * 20) + 5} posts</Badge>
+                    <div className="flex items-center">
+                      <Globe className="h-4 w-4 mr-2 text-travel-teal" />
+                      <span className="text-gray-700">{state}</span>
+                    </div>
+                    <Badge variant="secondary">{Math.floor(Math.random() * 12) + 3} posts</Badge>
                   </div>
                 ))}
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function BlogCard({ blog, onNavigate }: { blog: any; onNavigate: (page: Page, blogId?: string) => void }) {
-  return (
-    <div className="bg-white rounded-xl shadow-lg hover-lift cursor-pointer overflow-hidden group">
-      <div className="relative h-48 overflow-hidden">
-        <ImageWithFallback
-          src={blog.image}
-          alt={blog.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-        <div className="absolute top-4 left-4">
-          <Badge className="bg-travel-teal text-white">{blog.category}</Badge>
-        </div>
-        {blog.isPopular && (
-          <div className="absolute top-4 right-4">
-            <Badge className="bg-travel-gold text-white">Popular</Badge>
-          </div>
-        )}
-      </div>
-      <div className="p-6">
-        <div className="flex items-center text-sm text-travel-sage mb-2 space-x-4">
-          <div className="flex items-center">
-            <MapPin className="h-4 w-4 mr-1" />
-            {blog.location}
-          </div>
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 mr-1" />
-            {blog.readTime}
-          </div>
-          <div className="flex items-center">
-            <Eye className="h-4 w-4 mr-1" />
-            {blog.views}
-          </div>
-        </div>
-        <h3 className="font-serif text-xl mb-3 line-clamp-2 group-hover:text-travel-teal transition-colors">
-          {blog.title}
-        </h3>
-        <p className="text-gray-600 line-clamp-3 mb-4">{blog.excerpt}</p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {blog.tags.slice(0, 3).map((tag: string, index: number) => (
-            <Badge key={index} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-        <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
-          <span>Written by {blog.author}</span>
-        </div>
-        <Button 
-          onClick={() => onNavigate('blog', blog.id)}
-          className="w-full bg-travel-teal hover:bg-travel-teal-dark text-white"
-        >
-          Read More
-        </Button>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { Instagram, Youtube, MapPin, Mail, Heart } from 'lucide-react';
+import { Instagram, Youtube, Linkedin, MapPin, Mail, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 
@@ -44,16 +44,16 @@ export function Footer() {
             </p>
             
             <div className="flex space-x-4">
-              <Button variant="ghost" size="sm" className="text-stone-300 hover:text-white hover:bg-stone-700">
+              <Button variant="ghost" size="sm" className="text-stone-300 hover:text-white hover:bg-stone-700" onClick={() => window.open('https://www.instagram.com/blissmusafir/', '_blank')}>
                 <Instagram className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="sm" className="text-stone-300 hover:text-white hover:bg-stone-700">
+              <Button variant="ghost" size="sm" className="text-stone-300 hover:text-white hover:bg-stone-700" onClick={() => window.open('https://www.youtube.com/@BlissMusafir', '_blank')}>
                 <Youtube className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="sm" className="text-stone-300 hover:text-white hover:bg-stone-700">
-                <MapPin className="h-5 w-5" />
+              <Button variant="ghost" size="sm" className="text-stone-300 hover:text-white hover:bg-stone-700" onClick={() => window.open('https://www.linkedin.com/in/bliss-musafir-35bbb6317', '_blank')}>
+                <Linkedin className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="sm" className="text-stone-300 hover:text-white hover:bg-stone-700">
+              <Button variant="ghost" size="sm" className="text-stone-300 hover:text-white hover:bg-stone-700" onClick={() => window.open('mailto:blissmusafir@gmail.com', '_blank')}>
                 <Mail className="h-5 w-5" />
               </Button>
             </div>
@@ -74,7 +74,6 @@ export function Footer() {
           <div>
             <h4 className="text-lg font-medium mb-4">Connect</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">About Me</a></li>
               <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Contact</a></li>
               <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Collaborate</a></li>
               <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Privacy Policy</a></li>

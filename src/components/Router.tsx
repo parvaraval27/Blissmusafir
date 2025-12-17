@@ -3,10 +3,10 @@ import { HomePage } from '../pages/HomePage';
 import { IndiaPage } from '../pages/IndiaPage';
 import { WorldPage } from '../pages/WorldPage';
 import { BlogDetailPage } from '../pages/BlogDetailPage';
-import { AboutPage } from '../pages/AboutPage';
 import { ContactPage } from '../pages/ContactPage';
+import { AdminPage } from '../pages/AdminPage';
 
-export type Page = 'home' | 'india' | 'world' | 'blog' | 'about' | 'contact';
+export type Page = 'home' | 'india' | 'world' | 'blog' | 'contact' | 'admin';
 
 interface RouterProps {
   currentPage: Page;
@@ -24,10 +24,10 @@ export function Router({ currentPage, onNavigate, blogId }: RouterProps) {
       return <WorldPage onNavigate={onNavigate} />;
     case 'blog':
       return <BlogDetailPage onNavigate={onNavigate} blogId={blogId} />;
-    case 'about':
-      return <AboutPage onNavigate={onNavigate} />;
     case 'contact':
       return <ContactPage onNavigate={onNavigate} />;
+    case 'admin':
+      return <AdminPage onNavigate={onNavigate} />;
     default:
       return <HomePage onNavigate={onNavigate} />;
   }

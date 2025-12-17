@@ -11,98 +11,25 @@ interface WorldPageProps {
   onNavigate: (page: Page, blogId?: string) => void;
 }
 
-// Mock world blog data
-const mockWorldBlogs = [
-  {
-    id: '5',
-    title: 'Swiss Alps: A Journey to Heaven on Earth',
-    excerpt: 'Experience the breathtaking beauty of snow-capped peaks, pristine lakes, and charming Alpine villages.',
-    image: 'https://images.unsplash.com/photo-1608587069812-9a452271350c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzd2lzcyUyMGFscHMlMjBtb3VudGFpbnN8ZW58MXx8fHwxNzU5ODczMjQxfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'World',
-    location: 'Switzerland',
-    continent: 'Europe',
-    author: 'Emma Thompson',
-    readTime: '12 min read',
-    views: 1456,
-    date: '2025-01-20',
-    tags: ['Mountains', 'Nature', 'Photography'],
-    isPopular: true
-  },
-  {
-    id: '6',
-    title: 'Paris: The City of Light and Love',
-    excerpt: 'Discover the romantic charm of Paris with its iconic landmarks, world-class cuisine, and artistic heritage.',
-    image: 'https://images.unsplash.com/photo-1602828959545-11dd10955196?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXJpcyUyMGVpZmZlbCUyMHRvd2VyJTIwZXVyb3BlfGVufDF8fHx8MTc1OTg3MzI0MHww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'World',
-    location: 'Paris, France',
-    continent: 'Europe',
-    author: 'Sophie Martin',
-    readTime: '10 min read',
-    views: 2134,
-    date: '2025-01-18',
-    tags: ['Culture', 'Architecture', 'Food'],
-    isPopular: true
-  },
-  {
-    id: '7',
-    title: 'Bali: Island of the Gods',
-    excerpt: 'Immerse yourself in the spiritual beauty of Bali with its ancient temples, lush rice terraces, and pristine beaches.',
-    image: 'https://images.unsplash.com/photo-1604394089666-6d365c060c6c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYWxpJTIwdGVtcGxlJTIwaW5kb25lc2lhfGVufDF8fHx8MTc1OTg3MzI0MXww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'World',
-    location: 'Bali, Indonesia',
-    continent: 'Asia',
-    author: 'Lisa Chen',
-    readTime: '14 min read',
-    views: 1823,
-    date: '2025-01-15',
-    tags: ['Temples', 'Beach', 'Spirituality'],
-    isPopular: true
-  },
-  {
-    id: '8',
-    title: 'Tokyo: Where Tradition Meets Innovation',
-    excerpt: 'Experience the fascinating contrast of ultra-modern Tokyo with its ancient traditions and incredible street food culture.',
-    image: 'https://images.unsplash.com/photo-1614147892684-ce0bdcbaf582?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0b2t5byUyMGphcGFuJTIwc3RyZWV0fGVufDF8fHx8MTc1OTg3Mjc1NHww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'World',
-    location: 'Tokyo, Japan',
-    continent: 'Asia',
-    author: 'Kenji Tanaka',
-    readTime: '11 min read',
-    views: 1672,
-    date: '2025-01-12',
-    tags: ['Urban', 'Culture', 'Technology'],
-    isPopular: false
-  },
-  {
-    id: '9',
-    title: 'Santorini: Sunset Paradise in the Aegean',
-    excerpt: 'Witness the world\'s most beautiful sunsets from the cliff-top villages of this iconic Greek island.',
-    image: 'https://images.unsplash.com/photo-1650878201492-0c8039ff8ae6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZWF1dGlmdWwlMjBiZWFjaCUyMHN1bnNldHxlbnwxfHx8fDE3NTk4NzMxOTd8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: 'World',
-    location: 'Santorini, Greece',
-    continent: 'Europe',
-    readTime: '9 min read',
-    views: 1956,
-    date: '2025-01-08',
-    tags: ['Island', 'Sunset', 'Romance'],
-    isPopular: true
-  }
-];
-
 export function WorldPage({ onNavigate }: WorldPageProps) {
   const [selectedContinent, setSelectedContinent] = useState('all');
   const [currentTab, setCurrentTab] = useState('latest');
 
-  const filteredBlogs = mockWorldBlogs.filter(blog => {
+  // Get articles from localStorage
+  const getBlogs = () => {
+    const storedArticles = JSON.parse(localStorage.getItem('blogArticles') || '[]');
+    return storedArticles.filter((article: any) => article.category === 'World');
+  };
+
+  const worldBlogs = getBlogs();
+
+  const filteredBlogs = worldBlogs.filter((blog: any) => {
     if (selectedContinent === 'all') return true;
-    return blog.continent.toLowerCase() === selectedContinent.toLowerCase();
+    return blog.continent?.toLowerCase() === selectedContinent.toLowerCase();
   });
 
   const sortedBlogs = [...filteredBlogs].sort((a, b) => {
-    if (currentTab === 'popular') {
-      return b.views - a.views;
-    }
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
+    return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
   });
 
   const continents = ['Europe', 'Asia', 'North America', 'South America', 'Africa', 'Oceania'];
@@ -130,18 +57,12 @@ export function WorldPage({ onNavigate }: WorldPageProps) {
           {/* Main Content */}
           <div className="flex-1">
             <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-8 bg-white shadow-sm">
+              <TabsList className="grid w-full grid-cols-2 mb-8 bg-white shadow-sm">
                 <TabsTrigger 
                   value="latest" 
                   className="data-[state=active]:bg-gray-200 data-[state=active]:text-gray-800 data-[state=active]:shadow-md transition-all duration-200"
                 >
                   Latest
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="popular" 
-                  className="data-[state=active]:bg-gray-200 data-[state=active]:text-gray-800 data-[state=active]:shadow-md transition-all duration-200"
-                >
-                  Popular
                 </TabsTrigger>
                 <TabsTrigger 
                   value="continents" 
@@ -152,14 +73,6 @@ export function WorldPage({ onNavigate }: WorldPageProps) {
               </TabsList>
 
               <TabsContent value="latest" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedBlogs.map((blog) => (
-                    <WorldBlogCard key={blog.id} blog={blog} onNavigate={onNavigate} />
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="popular" className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedBlogs.map((blog) => (
                     <WorldBlogCard key={blog.id} blog={blog} onNavigate={onNavigate} />
