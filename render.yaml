@@ -1,0 +1,32 @@
+services:
+  # Backend API Service
+  - type: web
+    name: blissmusafir-api
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "node server.js"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: MONGODB_URI
+        sync: false  # You'll set this in Render dashboard
+      - key: CORS_ORIGIN
+        value: https://your-frontend-url.onrender.com  # Update after frontend deploy
+
+  # Frontend Service  
+  - type: web
+    name: blissmusafir-frontend
+    env: static
+    plan: free
+    buildCommand: "npm run build"
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://your-backend-url.onrender.com  # Update after backend deploy
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://your-backend-url.onrender.com/api/*  # API proxy
