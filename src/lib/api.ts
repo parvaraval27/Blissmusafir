@@ -1,5 +1,5 @@
 // Simple API client for Vite application
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE = (import.meta as any).env.VITE_API_URL || 'https://blissmusafir-api.onrender.com';
 
 export interface Article {
   id: string;
