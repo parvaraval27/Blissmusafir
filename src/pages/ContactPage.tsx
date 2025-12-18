@@ -23,7 +23,7 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
       icon: Mail,
       title: 'Email',
       value: 'blissmusafir@gmail.com',
-      description: 'Drop me a line anytime',
+      description: 'Drop us a line anytime',
       color: 'bg-blue-500'
     },
     {
@@ -101,7 +101,7 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
               <h2 className="font-serif text-3xl text-gray-900 mb-4">Get in Touch</h2>
               <p className="text-gray-600 text-lg">
                 Have a question about a destination? Want to collaborate? Or just want to share your own travel story? 
-                I'd love to hear from you! Fill out the form below and I'll get back to you within 24 hours.
+                We would love to hear from you! Fill out the form below and We'll get back to you within 24 hours.
               </p>
             </div>
 
@@ -142,7 +142,7 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
                       Message *
                     </label>
                     <Textarea 
-                      placeholder="Tell me about your travel dreams, questions, or collaboration ideas..." 
+                      placeholder="Tell us about your travel dreams, questions, or collaboration ideas..." 
                       rows={6} 
                       required 
                     />
@@ -184,66 +184,6 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
                 ))}
               </div>
             </div>
-
-            {/* Collaboration Section */}
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="font-serif text-2xl text-gray-900 flex items-center">
-                  <Heart className="h-6 w-6 mr-2 text-travel-teal" />
-                  Collaboration Opportunities
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-gray-600 mb-4">
-                  I'm always open to meaningful collaborations that align with my values of authentic, 
-                  sustainable, and inspiring travel content.
-                </p>
-                {collaborationTypes.map((type, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <span className="text-2xl">{type.icon}</span>
-                    <div>
-                      <h4 className="font-medium text-gray-900">{type.title}</h4>
-                      <p className="text-sm text-gray-600">{type.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Quick Stats */}
-            <Card className="shadow-lg bg-gradient-to-br from-travel-teal to-travel-teal-dark text-white">
-              <CardContent className="p-6">
-                <h3 className="font-serif text-xl mb-4">Why Work With Me?</h3>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <p className="text-2xl font-bold">100K+</p>
-                    <p className="text-sm opacity-90">Monthly Readers</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">47</p>
-                    <p className="text-sm opacity-90">Countries Visited</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">89</p>
-                    <p className="text-sm opacity-90">Stories Published</p>
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">95%</p>
-                    <p className="text-sm opacity-90">Engagement Rate</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Response Time */}
-            <div className="bg-white p-6 rounded-xl shadow-lg text-center">
-              <div className="bg-green-100 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Send className="h-8 w-8 text-green-600" />
-              </div>
-              <h3 className="font-serif text-xl text-gray-900 mb-2">Quick Response Time</h3>
-              <p className="text-gray-600 mb-4">I typically respond to all inquiries within 24 hours</p>
-              <Badge className="bg-green-100 text-green-800">Usually within 2-4 hours</Badge>
-            </div>
           </div>
         </div>
 
@@ -254,19 +194,19 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
             {[
               {
                 question: "How can I suggest a destination for you to visit?",
-                answer: "I love hearing destination suggestions! Send me an email with details about why you think I should visit, and I'll add it to my ever-growing bucket list."
+                answer: "We love hearing destination suggestions! Send us an email with details about why you think we should visit, and We'll add it to my ever-growing bucket list."
               },
               {
                 question: "Do you offer travel consultation services?",
-                answer: "Yes! I offer personalized travel planning services for destinations I've visited. Reach out to discuss your specific needs and budget."
+                answer: "Yes! We offer personalized travel planning services for destinations we've visited. Reach out to discuss your specific needs and budget."
               },
               {
                 question: "Can I use your photos for my project?",
-                answer: "All photos are copyrighted, but I'm open to licensing for appropriate use. Please contact me with details about your project."
+                answer: "All photos are copyrighted, but we are open to licensing for appropriate use. Please contact us with details about your project."
               },
               {
                 question: "How can I become a guest contributor?",
-                answer: "I occasionally feature guest posts from fellow travelers. Send me your story idea and writing samples, and let's discuss!"
+                answer: "We occasionally feature guest posts from fellow travelers. Send us your story idea and writing samples, and let's discuss!"
               }
             ].map((faq, index) => (
               <div key={index} className="border-l-4 border-travel-teal pl-4">
