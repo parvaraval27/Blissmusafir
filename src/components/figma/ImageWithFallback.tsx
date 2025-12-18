@@ -27,6 +27,7 @@ export function ImageWithFallback(props: React.ImgHTMLAttributes<HTMLImageElemen
     console.log('ImageWithFallback - Fixed Google Drive URL:', fixedSrc)
   }
 
+  // Render error placeholder — apply sizing to wrapper so avatars/thumbnails/hero images get correct size
   if (didError) {
     return (
       <div
@@ -41,15 +42,17 @@ export function ImageWithFallback(props: React.ImgHTMLAttributes<HTMLImageElemen
   }
 
   return (
-    <div className="relative">
+    // Apply provided className/style to the wrapper so sizing classes control the container
+    <div className={`relative ${className ?? ''}`} style={style}>
       {isLoading && (
-        <div className={`absolute inset-0 bg-gray-200 animate-pulse ${className ?? ''}`} style={style} />
+        <div className={`absolute inset-0 bg-gray-200 animate-pulse`} />
       )}
       <img 
         src={fixedSrc} 
         alt={alt} 
-        className={`${className ?? ''} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-        style={style} 
+        // Make the image fill the wrapper and use object-cover to always cover the area
+        className={`${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300 w-full h-full object-cover`} 
+        style={{ display: 'block', objectFit: 'cover' }} 
         {...rest} 
         onError={handleError}
         onLoad={handleLoad}

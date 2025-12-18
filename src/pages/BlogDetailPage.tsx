@@ -4,17 +4,16 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Input } from '../components/ui/input';
-import { Page } from '../components/Router';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { articleService } from '../services/articleService';
 import { Article } from '../lib/api';
+import { useParams, useNavigate } from 'react-router-dom';
 
-interface BlogDetailPageProps {
-  onNavigate: (page: Page, blogId?: string) => void;
-  blogId?: string;
-}
+export function BlogDetailPage() {
+  const params = useParams();
+  const navigate = useNavigate();
+  const blogId = params.id;
 
-export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
   const [blog, setBlog] = useState<Article | null>(null);
   const [latestPosts, setLatestPosts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +53,7 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-travel-beige">
         <p className="text-xl text-red-600 mb-4">{error || "Article not found"}</p>
-        <Button onClick={() => onNavigate('home')}>Back to Home</Button>
+        <Button onClick={() => navigate('/')}>Back to Home</Button>
       </div>
     );
   }
@@ -65,9 +64,9 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
     <div className="min-h-screen bg-travel-beige font-sans">
       <div className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center space-x-2 text-sm text-travel-sage">
-          <button onClick={() => onNavigate('home')} className="hover:text-travel-teal transition-colors">Home</button>
+          <button onClick={() => navigate('/')} className="hover:text-travel-teal transition-colors">Home</button>
           <ChevronRight className="h-4 w-4" />
-          <button onClick={() => onNavigate(blog.category.toLowerCase() as Page)} className="hover:text-travel-teal transition-colors">{blog.category}</button>
+          <button onClick={() => navigate(`/${blog.category.toLowerCase()}`)} className="hover:text-travel-teal transition-colors">{blog.category}</button>
           <ChevronRight className="h-4 w-4" />
           <span className="text-gray-900 font-medium truncate">{blog.title}</span>
         </div>
@@ -87,7 +86,7 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
               <ImageWithFallback 
                 src={blog.image} 
                 alt={blog.title} 
-                className="w-full h-full block" 
+                className="w-full h-full min-w-full min-h-full block object-cover" 
                 style={{ objectFit: 'cover', objectPosition: 'center' }} 
               />
             </div>
@@ -112,7 +111,7 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
                   <div 
                     key={post.id} 
                     className="group flex items-center gap-4 cursor-pointer" 
-                    onClick={() => onNavigate('blog', post.id)}
+                    onClick={() => navigate(`/blog/${post.id}`)}
                   >
                     <div 
                       className="shrink-0 rounded-lg overflow-hidden bg-gray-50 border border-gray-100"
@@ -148,7 +147,7 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
                 {categories.map((cat) => (
                   <button
                     key={cat}
-                    onClick={() => onNavigate(cat.toLowerCase() as Page)}
+                    onClick={() => navigate(`/${cat.toLowerCase()}`)}
                     className="flex items-center justify-between p-2.5 rounded-xl hover:bg-travel-beige group transition-colors text-left"
                   >
                     <span className="text-gray-700 group-hover:text-travel-teal font-medium">{cat}</span>

@@ -1,12 +1,9 @@
 import { Button } from './ui/button';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { Page } from './Router';
+import { useNavigate } from 'react-router-dom';
 
-interface CategoryHighlightProps {
-  onNavigate: (page: Page) => void;
-}
-
-export function CategoryHighlight({ onNavigate }: CategoryHighlightProps) {
+export function CategoryHighlight() {
+  const navigate = useNavigate();
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,7 +13,8 @@ export function CategoryHighlight({ onNavigate }: CategoryHighlightProps) {
             <ImageWithFallback
               src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080"
               alt="India travel destination"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full min-w-full min-h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              style={{ objectFit: 'cover' }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             
@@ -28,7 +26,7 @@ export function CategoryHighlight({ onNavigate }: CategoryHighlightProps) {
                 From the majestic Himalayas to pristine beaches, discover the incredible diversity of India
               </p>
               <Button 
-                onClick={() => onNavigate('india')}
+                onClick={() => navigate('/india')}
                 className="bg-travel-gold hover:bg-travel-gold-light text-white border-none rounded-full px-6 py-2"
               >
                 Discover India →
@@ -41,7 +39,8 @@ export function CategoryHighlight({ onNavigate }: CategoryHighlightProps) {
             <ImageWithFallback
               src="https://images.unsplash.com/photo-1503221043305-f7498f8b7888?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b3JsZCUyMHRyYXZlbCUyMGFkdmVudHVyZXxlbnwxfHx8fDE3NTk4NDA3NjN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
               alt="World travel adventure"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full min-w-full min-h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              style={{ objectFit: 'cover' }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             

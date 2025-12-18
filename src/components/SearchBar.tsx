@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, X } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -9,10 +10,18 @@ interface SearchBarProps {
 export function SearchBar({ onClose }: SearchBarProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
+  const navigate = useNavigate();
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search functionality here
-    console.log('Searching for:', searchQuery);
+    const term = searchQuery.trim();
+    if (!term) {
+      onClose();
+      return;
+    }
+
+    const encoded = encodeURIComponent(term);
+    navigate(`/search?q=${encoded}`);
     onClose();
   };
 

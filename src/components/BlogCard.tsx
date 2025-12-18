@@ -20,7 +20,8 @@ export function BlogCard({ image, category, title, excerpt, author = "Anonymous 
         <ImageWithFallback
           src={image}
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full min-w-full min-h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          style={{ objectFit: 'cover' }}
         />
         <div className="absolute top-4 left-4">
           <Badge 

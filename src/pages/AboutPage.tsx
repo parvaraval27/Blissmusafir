@@ -2,14 +2,11 @@ import { MapPin, Camera, Heart, Globe, Calendar, Award } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Page } from '../components/Router';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { useNavigate } from 'react-router-dom';
 
-interface AboutPageProps {
-  onNavigate: (page: Page) => void;
-}
-
-export function AboutPage({ onNavigate }: AboutPageProps) {
+export function AboutPage() {
+  const navigate = useNavigate();
   const travelStats = [
     { label: 'Countries Visited', value: '47', icon: Globe },
     { label: 'Continents Explored', value: '6', icon: MapPin },
@@ -57,7 +54,8 @@ export function AboutPage({ onNavigate }: AboutPageProps) {
         <ImageWithFallback
           src="https://images.unsplash.com/photo-1650878201492-0c8039ff8ae6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZWF1dGlmdWwlMjBiZWFjaCUyMHN1bnNldHxlbnwxfHx8fDE3NTk4NzMxOTd8MA&ixlib=rb-4.1.0&q=80&w=1080"
           alt="About Bliss Musafir"
-          className="w-full h-full object-cover"
+          className="w-full h-full min-w-full min-h-full object-cover"
+          style={{ objectFit: 'cover' }}
         />
         <div className="absolute inset-0 gradient-overlay"></div>
         <div className="absolute inset-0 flex items-center justify-center text-center">
@@ -77,6 +75,7 @@ export function AboutPage({ onNavigate }: AboutPageProps) {
                 src="https://images.unsplash.com/photo-1608661649226-796c26630764?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBibG9nZ2VyJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzU5ODcyNzA0fDA&ixlib=rb-4.1.0&q=80&w=1080"
                 alt="Arya - Travel Blogger"
                 className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                style={{ objectFit: 'cover' }}
               />
               <div className="absolute -bottom-2 -right-2 bg-travel-teal text-white p-2 rounded-full">
                 <Camera className="h-5 w-5" />
@@ -146,7 +145,8 @@ export function AboutPage({ onNavigate }: AboutPageProps) {
                   <ImageWithFallback
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-64 object-cover rounded-xl shadow-lg"
+                    className="w-full h-64 min-w-full min-h-full object-cover rounded-xl shadow-lg"
+                    style={{ objectFit: 'cover' }}
                   />
                 </div>
                 <div className="md:w-1/2 text-center md:text-left">
@@ -198,7 +198,7 @@ export function AboutPage({ onNavigate }: AboutPageProps) {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
-              onClick={() => onNavigate('contact')}
+              onClick={() => navigate('/contact')}
               className="bg-white text-travel-teal hover:bg-gray-100"
             >
               Get in Touch

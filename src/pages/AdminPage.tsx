@@ -7,8 +7,8 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Alert, AlertDescription } from '../components/ui/alert';
-import { Page } from '../components/Router';
 import { articleService } from '../services/articleService';
+import { useNavigate } from 'react-router-dom';
 import { Article } from '../lib/api';
 import mammoth from 'mammoth';
 import { uploadImageToCloudinary } from '../services/cloudinaryService';
@@ -23,7 +23,8 @@ interface ParsedArticle {
   location?: string;
 }
 
-export function AdminPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
+export function AdminPage() {
+  const navigate = useNavigate();
   const [docFile, setDocFile] = useState<File | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -207,7 +208,7 @@ export function AdminPage({ onNavigate }: { onNavigate: (page: Page) => void }) 
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Article Admin Panel</h1>
-            <Button variant="outline" onClick={() => onNavigate('home')}>
+            <Button variant="outline" onClick={() => navigate('/') }>
               Back to Site
             </Button>
           </div>

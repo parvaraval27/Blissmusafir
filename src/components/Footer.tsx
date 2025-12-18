@@ -1,6 +1,7 @@
 import { Instagram, Youtube, Linkedin, MapPin, Mail, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Link } from 'react-router-dom';
 
 export function Footer() {
   return (
@@ -63,9 +64,9 @@ export function Footer() {
           <div>
             <h4 className="text-lg font-medium mb-4">Explore</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Latest Stories</a></li>
-              <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">India Adventures</a></li>
-              <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">World Travels</a></li>
+              <li><Link to="/" className="text-stone-300 hover:text-white transition-colors duration-200">Latest Stories</Link></li>
+              <li><Link to="/india" className="text-stone-300 hover:text-white transition-colors duration-200">India Adventures</Link></li>
+              <li><Link to="/world" className="text-stone-300 hover:text-white transition-colors duration-200">World Travels</Link></li>
               <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Travel Tips</a></li>
             </ul>
           </div>
@@ -74,7 +75,7 @@ export function Footer() {
           <div>
             <h4 className="text-lg font-medium mb-4">Connect</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Contact</a></li>
+              <li><Link to="/contact" className="text-stone-300 hover:text-white transition-colors duration-200">Contact</Link></li>
               <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Collaborate</a></li>
               <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Privacy Policy</a></li>
             </ul>

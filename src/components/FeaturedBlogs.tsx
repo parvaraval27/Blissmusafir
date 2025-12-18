@@ -5,13 +5,10 @@ import { articleService } from '../services/articleService';
 import { Article } from '../lib/api';
 
 import { BlogCard } from './BlogCard';
-import { Page } from './Router';
+import { useNavigate } from 'react-router-dom';
 
-interface FeaturedBlogsProps {
-  onNavigate: (page: Page, blogId?: string) => void;
-}
-
-export function FeaturedBlogs({ onNavigate }: FeaturedBlogsProps) {
+export function FeaturedBlogs() {
+  const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -73,14 +70,14 @@ export function FeaturedBlogs({ onNavigate }: FeaturedBlogsProps) {
               title={blog.title}
               excerpt={blog.excerpt}
               readTime={blog.readTime}
-              onClick={() => onNavigate('blog', blog.id)}
+              onClick={() => navigate(`/blog/${blog.id}`)}
             />
           ))}
         </div>
 
         <div className="text-center mt-12">
           <button 
-            onClick={() => onNavigate('india')}
+            onClick={() => navigate('/india')}
             className="text-travel-teal hover:text-travel-teal-dark font-medium text-lg hover:underline transition-all duration-200"
           >
             View All Stories →

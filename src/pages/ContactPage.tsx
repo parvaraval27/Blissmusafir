@@ -4,14 +4,9 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Page } from '../components/Router';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 
-interface ContactPageProps {
-  onNavigate: (page: Page) => void;
-}
-
-export function ContactPage({ onNavigate }: ContactPageProps) {
+export function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission
@@ -82,7 +77,8 @@ export function ContactPage({ onNavigate }: ContactPageProps) {
         <ImageWithFallback
           src="https://images.unsplash.com/photo-1596693097925-9d818cc9692d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3VudGFpbiUyMGxhbmRzY2FwZSUyMHNjZW5pYyUyMHZpZXd8ZW58MXx8fHwxNzU5ODczMTk2fDA&ixlib=rb-4.1.0&q=80&w=1080"
           alt="Contact Bliss Musafir"
-          className="w-full h-full object-cover"
+          className="w-full h-full min-w-full min-h-full object-cover"
+          style={{ objectFit: 'cover' }}
         />
         <div className="absolute inset-0 gradient-overlay"></div>
         <div className="absolute inset-0 flex items-center justify-center text-center">

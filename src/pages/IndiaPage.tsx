@@ -4,15 +4,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Page } from '../components/Router';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { articleService } from '../services/articleService';
 import { Article } from '../lib/api';
+import { useNavigate } from 'react-router-dom';
 
-interface IndiaPageProps {
-  onNavigate: (page: Page, blogId?: string) => void;
-}
-function IndiaBlogCard({ blog, onNavigate }: { blog: any; onNavigate: (page: Page, blogId?: string) => void }) {
+function IndiaBlogCard({ blog }: { blog: any }) {
+  const navigate = useNavigate();
   return (
     <div className="bg-white rounded-xl shadow-lg hover-lift cursor-pointer overflow-hidden group">
       <div className="relative h-48 overflow-hidden">
@@ -57,7 +55,7 @@ function IndiaBlogCard({ blog, onNavigate }: { blog: any; onNavigate: (page: Pag
           ))}
         </div>
         <Button 
-          onClick={() => onNavigate('blog', blog.id)}
+          onClick={() => navigate(`/blog/${blog.id}`)}
           className="w-full bg-travel-teal hover:bg-travel-teal-dark text-white"
         >
           Read More
@@ -67,7 +65,7 @@ function IndiaBlogCard({ blog, onNavigate }: { blog: any; onNavigate: (page: Pag
   );
 }
 
-export function IndiaPage({ onNavigate }: IndiaPageProps) {
+export function IndiaPage() {
   const [selectedTag, setSelectedTag] = useState('all');
   const [currentTab, setCurrentTab] = useState('latest');
   const [articles, setArticles] = useState<Article[]>([]);
@@ -131,7 +129,8 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
         <ImageWithFallback
           src="https://images.unsplash.com/photo-1582510003544-4d00b7f74220?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixlib=rb-4.1.0&q=80&w=1080"
           alt="India Travel"
-          className="w-full h-full object-cover"
+          className="w-full h-full min-w-full min-h-full object-cover"
+          style={{ objectFit: 'cover' }}
         />
         <div className="absolute inset-0 gradient-overlay"></div>
         <div className="absolute inset-0 flex items-center justify-center text-center">
@@ -165,7 +164,7 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
               <TabsContent value="latest" className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedArticles.map((article) => (
-                    <IndiaBlogCard key={article.id} blog={article} onNavigate={onNavigate} />
+                    <IndiaBlogCard key={article.id} blog={article} />
                   ))}
                 </div>
               </TabsContent>
@@ -212,7 +211,7 @@ export function IndiaPage({ onNavigate }: IndiaPageProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedArticles.length > 0 ? (
                     sortedArticles.map((article) => (
-                      <IndiaBlogCard key={article.id} blog={article} onNavigate={onNavigate} />
+                      <IndiaBlogCard key={article.id} blog={article} />
                     ))
                   ) : (
                     <div className="col-span-full text-center py-12">

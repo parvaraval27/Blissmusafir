@@ -1,12 +1,9 @@
 import { Button } from './ui/button';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { Page } from './Router';
+import { useNavigate } from 'react-router-dom';
 
-interface HeroSectionProps {
-  onNavigate: (page: Page) => void;
-}
-
-export function HeroSection({ onNavigate }: HeroSectionProps) {
+export function HeroSection() {
+  const navigate = useNavigate();
   return (
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -14,7 +11,8 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
         <ImageWithFallback
           src="https://images.unsplash.com/photo-1596693097925-9d818cc9692d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3VudGFpbiUyMGxhbmRzY2FwZSUyMHNjZW5pYyUyMHZpZXd8ZW58MXx8fHwxNzU5ODczMTk2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
           alt="Scenic mountain landscape"
-          className="w-full h-full object-cover"
+          className="w-full h-full min-w-full min-h-full block object-cover"
+          style={{ objectFit: 'cover' }}
         />
         <div className="absolute inset-0 bg-black/30" />
       </div>
@@ -41,7 +39,7 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
           <Button 
             size="lg" 
             variant="outline" 
-            onClick={() => onNavigate('contact')}
+            onClick={() => navigate('/contact')}
             className="border-2 border-white hover:bg-white hover:text-gray-800 px-8 py-3 text-lg font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
           >
             Join Our Community
