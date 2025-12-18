@@ -25,6 +25,28 @@ async function connectDB() {
 }
 
 // API Routes
+// In your server.js / backend code:
+// GET a single article by ID
+app.get('/api/articles/:id', async (req, res) => {
+  try {
+    const db = client.db('blissmusafir');
+    const collection = db.collection('articles');
+    const articleId = req.params.id;
+    
+    // Look for the string 'id' field you created in your POST route
+    const article = await collection.findOne({ id: articleId });
+    
+    if (!article) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+    
+    res.json(article);
+  } catch (error) {
+    console.error('Error fetching article by ID:', error);
+    res.status(500).json({ error: 'Failed to fetch article' });
+  }
+});
+
 app.get('/api/articles', async (req, res) => {
   try {
     const db = client.db('blissmusafir');

@@ -70,6 +70,13 @@ class ApiClient {
       method: 'DELETE',
     });
   }
+  
+  // Add this to your ApiClient class in src/lib/api.ts
+  async getArticleById(id: string): Promise<Article> {
+  const response = await this.request(`/api/articles/${id}`);
+  return response.json();
+  }
+
 }
 
 export const apiClient = new ApiClient();
