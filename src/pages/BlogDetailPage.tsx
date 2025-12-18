@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Clock, Heart, Share2, Loader2, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, Heart, Share2, Loader2, ChevronRight, Instagram, Youtube, Linkedin, Mail } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
@@ -63,7 +63,7 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
 
   return (
     <div className="min-h-screen bg-travel-beige font-sans">
-      <div className="bg-white border-b">
+      <div className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center space-x-2 text-sm text-travel-sage">
           <button onClick={() => onNavigate('home')} className="hover:text-travel-teal transition-colors">Home</button>
           <ChevronRight className="h-4 w-4" />
@@ -83,7 +83,6 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
               <p className="text-xl text-gray-600 mb-6 italic border-l-4 border-travel-teal pl-4">"{blog.excerpt}"</p>
             </header>
 
-            {/* ISSUE 1 FIXED: Main image centered vertically and horizontally */}
             <div className="mb-10 w-full overflow-hidden rounded-2xl shadow-xl bg-gray-200" style={{ height: '450px' }}>
               <ImageWithFallback 
                 src={blog.image} 
@@ -94,15 +93,18 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
             </div>
 
             <div 
-              className="prose prose-lg max-w-none text-gray-700 leading-relaxed blog-content"
+              className="prose prose-lg max-w-none text-gray-700 leading-relaxed blog-content mb-16"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />
           </article>
 
-          <aside className="lg:w-1/3 flex flex-col gap-8 sticky top-32 self-start">
-            {/* Latest Stories Section */}
+          {/* SIDEBAR: Integrated uniform spacing and sticky behavior */}
+          <aside className="lg:w-1/3 flex flex-col gap-8 sticky top-48 mt-24 self-start">
+            <div className="h-32 w-full" aria-hidden="true"></div>
+            {/* Recent Stories */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="font-serif text-xl mb-6 pb-2 border-b-2 border-travel-teal inline-block">
+              <h3 className="font-serif text-xl mb-6 flex items-center">
+                <span className="w-8 h-px bg-travel-teal mr-3" />
                 Recent Stories
               </h3>
               <div className="space-y-6">
@@ -136,8 +138,10 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
               </div>
             </div>
 
+            {/* Categories */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="font-serif text-xl mb-6 pb-2 border-b-2 border-travel-teal inline-block">
+              <h3 className="font-serif text-xl mb-6 flex items-center">
+                <span className="w-8 h-px bg-travel-teal mr-3" />
                 Categories
               </h3>
               <div className="grid grid-cols-1 gap-1">
@@ -154,15 +158,50 @@ export function BlogDetailPage({ onNavigate, blogId }: BlogDetailPageProps) {
               </div>
             </div>
 
-            {/* Newsletter section pushed to bottom */}
-            <div className="bg-travel-teal p-8 rounded-2xl text-white shadow-lg text-center">
-              <h3 className="font-serif text-2xl mb-2">Join the Journey</h3>
-              <p className="text-teal-50 text-xs mb-6 opacity-80">Get travel stories in your inbox.</p>
-              <div className="space-y-3">
-                <Input placeholder="Your Email" className="bg-white/10 border-white/20 text-white placeholder:text-teal-100 h-10" />
-                <Button className="w-full bg-white text-travel-teal hover:bg-teal-50 font-bold h-10">Subscribe</Button>
-              </div>
-            </div>
+  {/* 4. Popular Tags Section */}
+  <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+    <h3 className="font-serif text-xl mb-4 pb-2 border-b-2 border-travel-teal inline-block">
+      Popular Tags
+    </h3>
+    <div className="flex flex-wrap gap-2">
+      {['Adventure', 'Culture', 'Food', 'Nature', 'History', 'Photography'].map((tag) => (
+        <span
+          key={tag}
+          className="px-3 py-1 bg-travel-beige text-travel-sage text-xs rounded-full hover:bg-travel-teal hover:text-white cursor-pointer transition-colors"
+        >
+          {tag}
+        </span>
+      ))}
+    </div>
+  </div>
+
+  {/* 5. Follow Us Section */}
+  <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+    <h3 className="font-serif text-xl mb-4 pb-2 border-b-2 border-travel-teal inline-block">
+      Follow Us
+    </h3>
+    <div className="grid grid-cols-2 gap-3">
+      <Button variant="outline" size="sm" className="hover:bg-travel-teal hover:text-white text-xs h-9">Instagram</Button>
+      <Button variant="outline" size="sm" className="hover:bg-travel-teal hover:text-white text-xs h-9">YouTube</Button>
+      <Button variant="outline" size="sm" className="hover:bg-travel-teal hover:text-white text-xs h-9">Twitter</Button>
+      <Button variant="outline" size="sm" className="hover:bg-travel-teal hover:text-white text-xs h-9">Facebook</Button>
+    </div>
+  </div>
+
+  {/* 6. Newsletter Section (The Footer of the Sidebar) */}
+  <div className="bg-travel-teal p-8 rounded-2xl text-white shadow-lg text-center">
+    <h3 className="font-serif text-2xl mb-2">Join the Journey</h3>
+    <p className="text-teal-50 text-xs mb-6 opacity-80">Get travel stories in your inbox.</p>
+    <div className="space-y-3">
+      <Input 
+        placeholder="Your Email" 
+        className="bg-white/10 border-white/20 text-white placeholder:text-teal-100 h-10 border-none focus-visible:ring-white/30" 
+      />
+      <Button className="w-full bg-white text-travel-teal hover:bg-teal-50 font-bold h-10">
+        Subscribe
+      </Button>
+    </div>
+  </div>
           </aside>
         </div>
       </div>

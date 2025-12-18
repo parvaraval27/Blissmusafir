@@ -112,78 +112,69 @@ export function AdminPage({ onNavigate }: { onNavigate: (page: Page) => void }) 
   };
 
   const processDocFile = async () => {
-    if (!docFile) return;
+  if (!docFile) return;
 
-    setIsProcessing(true);
-    setError(null);
+  setIsProcessing(true);
+  setError(null);
 
-    try {
-      const arrayBuffer = await docFile.arrayBuffer();
-      const result = await mammoth.extractRawText({ arrayBuffer });
-      const text = result.value;
+  try {
+    const arrayBuffer = await docFile.arrayBuffer();
 
-      // Parse document content to extract title, subtitle, and content
-      const lines = text.split('\n').filter((line: string) => line.trim());
-      
-      let title = 'Untitled Article';
-      let subtitle = 'A wonderful travel destination';
-      let content = text;
+    // 1. Get RAW TEXT to find Title and Subtitle
+    const textResult = await mammoth.extractRawText({ arrayBuffer });
+    const rawText = textResult.value;
+    const lines = rawText.split('\n').filter(line => line.trim());
 
-      // Try to extract title from first few lines
-      if (lines.length > 0) {
-        const firstLine = lines[0].trim();
-        if (firstLine.length < 100 && !firstLine.includes('.')) {
-          title = firstLine;
-          content = lines.slice(1).join('\n');
-        }
+    let title = "New Article Title";
+    let subtitle = "Article Subtitle";
+    let textForTags = rawText;
+
+    // YOUR LOGIC: Extract title from first line
+    if (lines.length > 0) {
+      const firstLine = lines[0].trim();
+      if (firstLine.length < 100 && !firstLine.includes('.')) {
+        title = firstLine;
       }
-
-      // Try to extract subtitle from second line
-      const remainingLines = content.split('\n').filter((line: string) => line.trim());
-      if (remainingLines.length > 0) {
-        const secondLine = remainingLines[0].trim();
-        if (secondLine.length < 200 && secondLine.length > 20) {
-          subtitle = secondLine;
-          content = remainingLines.slice(1).join('\n');
-        }
-      }
-
-      // Convert plain text to HTML format
-      const htmlContent = content
-        .split('\n\n')
-        .map((paragraph: string) => {
-          const trimmed = paragraph.trim();
-          if (!trimmed) return '';
-          
-          // Convert headings
-          if (trimmed.length < 50 && !trimmed.includes('.')) {
-            return `<h2>${trimmed}</h2>`;
-          }
-          
-          // Convert regular paragraphs
-          return `<p>${trimmed.replace(/\n/g, ' ')}</p>`;
-        })
-        .filter((html: string) => html)
-        .join('\n');
-
-      const parsed: ParsedArticle = {
-        title,
-        subtitle,
-        content: htmlContent,
-        category: 'India',
-        tags: extractTags(text),
-        location: 'India'
-      };
-
-      setParsedArticle(parsed);
-      setSuccess('Document processed successfully! Review and add Google Drive URL below.');
-    } catch (err) {
-      console.error('DOC parsing error:', err);
-      setError('Failed to process document. Please ensure it\'s a valid DOCX file.');
-    } finally {
-      setIsProcessing(false);
     }
-  };
+
+    // YOUR LOGIC: Extract subtitle from second line
+    const remainingLines = lines.slice(1);
+    if (remainingLines.length > 0) {
+      const secondLine = remainingLines[0].trim();
+      if (secondLine.length < 200 && secondLine.length > 20) {
+        subtitle = secondLine;
+      }
+    }
+
+    // 2. Get HTML to preserve all paragraphs
+    const htmlResult = await mammoth.convertToHtml({ arrayBuffer });
+    let htmlContent = htmlResult.value;
+
+    // CLEANUP: Since we extracted Title/Subtitle separately, 
+    // we should remove the first two paragraphs from the HTML so they don't repeat in the body.
+    // This finds the first two <p> or <h> tags and removes them.
+    const bodyContent = htmlContent
+      .replace(/<(h1|h2|p)[^>]*>.*?<\/\1>/i, '') // Removes Title from HTML body
+      .replace(/<(h1|h2|p)[^>]*>.*?<\/\1>/i, ''); // Removes Subtitle from HTML body
+
+    const parsed: ParsedArticle = {
+      title: title,
+      subtitle: subtitle,
+      content: bodyContent.trim(), // PARAGRAPHS PRESERVED HERE
+      category: 'India',
+      tags: extractTags(textForTags),
+      location: 'India'
+    };
+
+    setParsedArticle(parsed);
+    setSuccess('Document processed! Title, Subtitle, and Paragraphs preserved.');
+  } catch (err) {
+    console.error('DOC parsing error:', err);
+    setError('Failed to process document.');
+  } finally {
+    setIsProcessing(false);
+  }
+};
 
   const extractTags = (text: string): string[] => {
     const commonTags = [
