@@ -30,6 +30,11 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
+          <div className="flex items-center justify-between gap-2"><img 
+            src="/favicon.png" 
+            alt="Bliss Musafir Logo" 
+            className="w-10 h-10 object-contain" // Adjust w-10 h-10 (40px) as per your choice
+          />
           <div className="flex-shrink-0">
             <button 
               onClick={() => handleNavigation('home')}
@@ -37,7 +42,7 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
             >
               Bliss Musafir
             </button>
-          </div>
+          </div></div>
 
           {/* Search Bar (when open) */}
           {isSearchOpen && (
