@@ -1,4 +1,5 @@
-import { Mail, Instagram, Youtube, Linkedin, MapPin, Phone, Send, Heart } from 'lucide-react';
+import { Mail, Instagram, Youtube, MapPin, Phone, Send } from 'lucide-react';
+import { FaLinkedin } from 'react-icons/fa';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
@@ -38,11 +39,11 @@ export function ContactPage() {
       link: 'https://www.youtube.com/@BlissMusafir'
     },
     {
-      icon: Linkedin,
+      icon: FaLinkedin,
       title: 'LinkedIn',
       value: 'Bliss Musafir',
       description: 'Professional network',
-      color: 'bg-blue-600',
+      color: 'bg-blue-500',
       link: 'https://www.linkedin.com/in/bliss-musafir-35bbb6317'
     }
   ];
