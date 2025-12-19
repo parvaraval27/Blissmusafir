@@ -9,6 +9,8 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static('dist'));
+app.use(express.static('public'));
 
 // MongoDB connection
 const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/blissmusafir';
@@ -133,6 +135,11 @@ app.delete('/api/articles', async (req, res) => {
     console.error('Error deleting article:', error);
     res.status(500).json({ error: 'Failed to delete article' });
   }
+});
+
+// SPA fallback - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile('index.html', { root: 'dist' });
 });
 
 // Start server
