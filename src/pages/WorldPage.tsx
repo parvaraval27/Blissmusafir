@@ -15,6 +15,7 @@ export function WorldPage() {
   const [currentTab, setCurrentTab] = useState('latest');
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visibleArticles, setVisibleArticles] = useState(6);
 
   // Fetch articles from MongoDB
   useEffect(() => {
@@ -44,7 +45,7 @@ export function WorldPage() {
     return new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime();
   });
 
-  const continents = ['Europe', 'Asia', 'North America', 'South America', 'Africa', 'Oceania', 'Multiple Continents'];
+  const continents = [...new Set(articles.map(a => a.continent).filter(Boolean))].sort();
 
   if (loading) {
     return (
@@ -98,7 +99,7 @@ export function WorldPage() {
 
               <TabsContent value="latest" className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedBlogs.map((blog) => (
+                  {sortedBlogs.slice(0, visibleArticles).map((blog) => (
                     <WorldBlogCard key={blog.id} blog={blog} />
                   ))}
                 </div>
@@ -120,7 +121,7 @@ export function WorldPage() {
                   ))}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedBlogs.map((blog) => (
+                  {sortedBlogs.slice(0, visibleArticles).map((blog) => (
                     <WorldBlogCard key={blog.id} blog={blog} />
                   ))}
                 </div>
@@ -128,11 +129,16 @@ export function WorldPage() {
             </Tabs>
 
             {/* Load More Button */}
-            <div className="text-center mt-12">
-              <Button className="bg-travel-teal hover:bg-travel-teal-dark text-white px-8 py-3">
-                Load More Adventures
-              </Button>
-            </div>
+            {visibleArticles < sortedBlogs.length && (
+              <div className="text-center mt-12">
+                <Button
+                  onClick={() => setVisibleArticles(prev => prev + 6)}
+                  className="bg-travel-teal hover:bg-travel-teal-dark text-white px-8 py-3"
+                >
+                  Load More Adventures
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -165,7 +171,7 @@ export function WorldPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Continents Explored</span>
-                  <span className="font-medium text-travel-teal">6</span>
+                  <span className="font-medium text-travel-teal">{continents.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Miles Traveled</span>
@@ -173,7 +179,7 @@ export function WorldPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Stories Shared</span>
-                  <span className="font-medium text-travel-teal">89</span>
+                  <span className="font-medium text-travel-teal">{articles.length}</span>
                 </div>
               </div>
             </div>

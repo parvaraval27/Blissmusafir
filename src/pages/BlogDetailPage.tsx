@@ -38,8 +38,25 @@ export function BlogDetailPage() {
       }
     }
     loadData();
-    window.scrollTo(0, 0);
   }, [blogId]);
+
+  const handleShare = async () => {
+    if (!blog) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: blog.title,
+          text: blog.excerpt,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
 
   if (loading) {
     return (
@@ -185,6 +202,17 @@ export function BlogDetailPage() {
       <Button variant="outline" size="sm" className="hover:bg-travel-teal hover:text-white text-xs h-9">Twitter</Button>
       <Button variant="outline" size="sm" className="hover:bg-travel-teal hover:text-white text-xs h-9">Facebook</Button>
     </div>
+  </div>
+
+  {/* Share Article Section */}
+  <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+    <h3 className="font-serif text-xl mb-4 pb-2 border-b-2 border-travel-teal inline-block">
+      Share this Story
+    </h3>
+    <Button onClick={handleShare} variant="outline" className="w-full group hover:bg-travel-teal hover:text-white transition-colors">
+      <Share2 className="mr-2 h-4 w-4 transform group-hover:scale-110 transition-transform" />
+      <span>Share Now</span>
+    </Button>
   </div>
 
   {/* 6. Newsletter Section (The Footer of the Sidebar) */}

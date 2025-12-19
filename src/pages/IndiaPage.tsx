@@ -70,6 +70,7 @@ export function IndiaPage() {
   const [currentTab, setCurrentTab] = useState('latest');
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visibleArticles, setVisibleArticles] = useState(6);
 
   // Fetch articles from MongoDB
   useEffect(() => {
@@ -163,7 +164,7 @@ export function IndiaPage() {
 
               <TabsContent value="latest" className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedArticles.map((article) => (
+                  {sortedArticles.slice(0, visibleArticles).map((article) => (
                     <IndiaBlogCard key={article.id} blog={article} />
                   ))}
                 </div>
@@ -210,7 +211,7 @@ export function IndiaPage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedArticles.length > 0 ? (
-                    sortedArticles.map((article) => (
+                    sortedArticles.slice(0, visibleArticles).map((article) => (
                       <IndiaBlogCard key={article.id} blog={article} />
                     ))
                   ) : (
@@ -230,11 +231,16 @@ export function IndiaPage() {
             </Tabs>
 
             {/* Load More Button */}
-            <div className="text-center mt-12">
-              <Button className="bg-travel-teal hover:bg-travel-teal-dark text-white px-8 py-3">
-                Load More Adventures
-              </Button>
-            </div>
+            {visibleArticles < sortedArticles.length && (
+              <div className="text-center mt-12">
+                <Button
+                  onClick={() => setVisibleArticles(prev => prev + 6)}
+                  className="bg-travel-teal hover:bg-travel-teal-dark text-white px-8 py-3"
+                >
+                  Load More Adventures
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -280,7 +286,7 @@ export function IndiaPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Stories Shared</span>
-                  <span className="font-medium text-travel-teal">67</span>
+                  <span className="font-medium text-travel-teal">{articles.length}</span>
                 </div>
               </div>
             </div>
