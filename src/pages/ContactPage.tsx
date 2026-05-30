@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Mail, Instagram, Youtube, MapPin, Phone, Send } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa';
 import { Button } from '../components/ui/button';
@@ -6,12 +7,36 @@ import { Textarea } from '../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { apiClient } from '../lib/api';
 
 export function ContactPage() {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [submitSuccess, setSubmitSuccess] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted');
+
+    const formData = new FormData(e.currentTarget);
+    const firstName = String(formData.get('firstName') || '').trim();
+    const lastName = String(formData.get('lastName') || '').trim();
+    const email = String(formData.get('email') || '').trim();
+    const subject = String(formData.get('subject') || '').trim();
+    const message = String(formData.get('message') || '').trim();
+
+    setIsSubmitting(true);
+    setSubmitError('');
+    setSubmitSuccess('');
+
+    try {
+      await apiClient.sendContactMessage({ firstName, lastName, email, subject, message });
+      setSubmitSuccess('Thanks. Your message has been sent to Bliss Musafir.');
+      e.currentTarget.reset();
+    } catch (error) {
+      setSubmitError('Sorry, the message could not be sent right now. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -104,19 +129,24 @@ export function ContactPage() {
 
             <Card className="shadow-lg">
               <CardContent className="p-8">
+                {(submitSuccess || submitError) && (
+                  <div className={`mb-6 rounded-xl px-4 py-3 text-sm ${submitSuccess ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
+                    {submitSuccess || submitError}
+                  </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         First Name *
                       </label>
-                      <Input placeholder="Your first name" required />
+                      <Input name="firstName" placeholder="Your first name" required />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Last Name *
                       </label>
-                      <Input placeholder="Your last name" required />
+                      <Input name="lastName" placeholder="Your last name" required />
                     </div>
                   </div>
                   
@@ -124,14 +154,14 @@ export function ContactPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Email Address *
                     </label>
-                    <Input type="email" placeholder="your.email@example.com" required />
+                    <Input name="email" type="email" placeholder="your.email@example.com" required />
                   </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Subject *
                     </label>
-                    <Input placeholder="What would you like to discuss?" required />
+                    <Input name="subject" placeholder="What would you like to discuss?" required />
                   </div>
                   
                   <div>
@@ -139,6 +169,7 @@ export function ContactPage() {
                       Message *
                     </label>
                     <Textarea 
+                      name="message"
                       placeholder="Tell us about your travel dreams, questions, or collaboration ideas..." 
                       rows={6} 
                       required 
@@ -147,10 +178,11 @@ export function ContactPage() {
                   
                   <Button 
                     type="submit" 
+                    disabled={isSubmitting}
                     className="w-full bg-travel-teal hover:bg-travel-teal-dark text-white py-3"
                   >
                     <Send className="h-4 w-4 mr-2" />
-                    Send Message
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </Button>
                 </form>
               </CardContent>

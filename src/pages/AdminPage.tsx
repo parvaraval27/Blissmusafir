@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { Upload, FileText, Plus, X, Check, AlertCircle, Loader2, Image as ImageIcon } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Upload, FileText, Plus, X, Check, AlertCircle, Loader2, Image as ImageIcon, Send } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { articleService } from '../services/articleService';
 import { useNavigate } from 'react-router-dom';
-import { Article } from '../lib/api';
+import { apiClient, Article } from '../lib/api';
 import mammoth from 'mammoth';
 import { uploadImageToCloudinary } from '../services/cloudinaryService';
 
@@ -25,15 +25,74 @@ interface ParsedArticle {
 
 export function AdminPage() {
   const navigate = useNavigate();
+  const [adminEmail, setAdminEmail] = useState<string | null>(null);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [docFile, setDocFile] = useState<File | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [parsedArticle, setParsedArticle] = useState<ParsedArticle | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSendingDigest, setIsSendingDigest] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [digestStatus, setDigestStatus] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    async function verifySession() {
+      try {
+        const session = await apiClient.getAdminSession();
+        setAdminEmail(session?.email ?? null);
+      } catch (sessionError) {
+        apiClient.clearAdminToken();
+        setAdminEmail(null);
+      } finally {
+        setIsAuthenticating(false);
+      }
+    }
+
+    verifySession();
+  }, []);
+
+  const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setAuthError(null);
+
+    try {
+      const session = await apiClient.adminLogin(loginEmail.trim(), loginPassword);
+      apiClient.setAdminToken(session.token);
+      setAdminEmail(session.email);
+      setLoginEmail('');
+      setLoginPassword('');
+    } catch (loginError) {
+      setAuthError('Only the approved admin emails can access this panel.');
+    }
+  };
+
+  const handleLogout = async () => {
+    await apiClient.adminLogout();
+    setAdminEmail(null);
+    setLoginEmail('');
+  };
+
+  const handleSendDigestNow = async () => {
+    setIsSendingDigest(true);
+    setDigestStatus(null);
+
+    try {
+      const result = await apiClient.triggerDigestSend();
+      setDigestStatus(result.message || 'Digest send triggered successfully.');
+    } catch (sendError) {
+      console.error('Error triggering digest send:', sendError);
+      setDigestStatus('Failed to trigger digest send.');
+    } finally {
+      setIsSendingDigest(false);
+    }
+  };
 
   const handleDocUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -201,21 +260,116 @@ export function AdminPage() {
     return foundTags.slice(0, 5); // Limit to 5 tags
   };
 
+  if (isAuthenticating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader2 className="h-10 w-10 animate-spin text-travel-teal" />
+      </div>
+    );
+  }
+
+  if (!adminEmail) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-16">
+        <Card className="w-full max-w-md shadow-xl">
+          <CardHeader>
+            <CardTitle className="text-2xl">Admin Sign In</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+          
+            {authError && <Alert><AlertDescription>{authError}</AlertDescription></Alert>}
+            <form className="space-y-4" onSubmit={handleLogin}>
+              <div className="space-y-2">
+                <Label htmlFor="admin-email">Email address</Label>
+                <Input
+                  id="admin-email"
+                  type="email"
+                  value={loginEmail}
+                  onChange={(event) => setLoginEmail(event.target.value)}
+                  placeholder="admin@example.com"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="admin-password">Password</Label>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  value={loginPassword}
+                  onChange={(event) => setLoginPassword(event.target.value)}
+                  placeholder="Enter admin password"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full bg-travel-teal hover:bg-travel-teal-dark text-white">
+                Sign In
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Article Admin Panel</h1>
-            <Button variant="outline" onClick={() => navigate('/') }>
-              Back to Site
-            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Article Admin Panel</h1>
+              <p className="text-sm text-gray-500">Signed in as {adminEmail}</p>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => navigate('/') }>
+                Back to Site
+              </Button>
+              <Button variant="destructive" onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <Card className="border border-gray-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Send className="h-5 w-5" />
+                Admin Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Send the weekly digest immediately to all active newsletter subscribers.
+              </p>
+              {digestStatus && (
+                <Alert className={digestStatus.startsWith('Failed') ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}>
+                  <AlertDescription className={digestStatus.startsWith('Failed') ? 'text-red-700' : 'text-green-700'}>
+                    {digestStatus}
+                  </AlertDescription>
+                </Alert>
+              )}
+              <Button onClick={handleSendDigestNow} disabled={isSendingDigest} className="bg-travel-teal hover:bg-travel-teal-dark text-white">
+                {isSendingDigest ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Sending digest...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send digest now
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Upload Section */}
           <div className="space-y-6">

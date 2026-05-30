@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { Input } from '../components/ui/input';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { articleService } from '../services/articleService';
-import { Article } from '../lib/api';
+import { apiClient, Article } from '../lib/api';
 import { useParams, useNavigate } from 'react-router-dom';
 
 export function BlogDetailPage() {
@@ -18,6 +18,9 @@ export function BlogDetailPage() {
   const [latestPosts, setLatestPosts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -55,6 +58,22 @@ export function BlogDetailPage() {
     } else {
       navigator.clipboard.writeText(window.location.href);
       alert('Link copied to clipboard!');
+    }
+  };
+
+  const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubscribing(true);
+    setNewsletterStatus('');
+
+    try {
+      await apiClient.subscribeToNewsletter(newsletterEmail);
+      setNewsletterStatus('You are subscribed to weekly stories.');
+      setNewsletterEmail('');
+    } catch (subscribeError) {
+      setNewsletterStatus('Subscription failed. Please try again later.');
+    } finally {
+      setIsSubscribing(false);
     }
   };
 
@@ -219,15 +238,20 @@ export function BlogDetailPage() {
   <div className="bg-travel-teal p-8 rounded-2xl text-white shadow-lg text-center">
     <h3 className="font-serif text-2xl mb-2">Join the Journey</h3>
     <p className="text-teal-50 text-xs mb-6 opacity-80">Get travel stories in your inbox.</p>
-    <div className="space-y-3">
+    <form onSubmit={handleSubscribe} className="space-y-3">
       <Input 
+        type="email"
         placeholder="Your Email" 
+        value={newsletterEmail}
+        onChange={(event) => setNewsletterEmail(event.target.value)}
         className="bg-white/10 border-white/20 text-white placeholder:text-teal-100 h-10 border-none focus-visible:ring-white/30" 
+        required
       />
-      <Button className="w-full bg-white text-travel-teal hover:bg-teal-50 font-bold h-10">
-        Subscribe
+      <Button type="submit" disabled={isSubscribing} className="w-full bg-white text-travel-teal hover:bg-teal-50 font-bold h-10">
+        {isSubscribing ? 'Joining...' : 'Subscribe'}
       </Button>
-    </div>
+      {newsletterStatus && <p className="text-xs text-teal-50">{newsletterStatus}</p>}
+    </form>
   </div>
           </aside>
         </div>

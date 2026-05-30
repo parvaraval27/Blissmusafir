@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, Menu, X, Settings } from 'lucide-react';
 import { Button } from './ui/button';
 import { SearchBar } from './SearchBar';
@@ -7,6 +7,11 @@ import { NavLink, Link } from 'react-router-dom';
 export function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [showAdminShortcut, setShowAdminShortcut] = useState(false);
+
+  useEffect(() => {
+    setShowAdminShortcut(Boolean(window.localStorage.getItem('bliss-admin-token')));
+  }, []);
 
   const navigationItems = [
     { label: 'Home', to: '/' },
@@ -55,11 +60,13 @@ export function Navigation() {
           <div className="flex items-center space-x-4">
             {!isSearchOpen && (
               <>
-                <Link to="/admin" title="Admin Panel">
-                  <Button variant="ghost" size="sm" className="text-gray-500 hover:text-travel-teal">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </Link>
+                {showAdminShortcut && (
+                  <Link to="/admin" title="Admin Panel">
+                    <Button variant="ghost" size="sm" className="text-gray-500 hover:text-travel-teal">
+                      <Settings className="h-5 w-5" />
+                    </Button>
+                  </Link>
+                )}
                 <Button variant="ghost" size="sm" className="text-gray-700 hover:text-travel-teal" onClick={() => setIsSearchOpen(true)}>
                   <Search className="h-5 w-5" />
                 </Button>

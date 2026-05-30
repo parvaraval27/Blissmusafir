@@ -50,7 +50,16 @@
     outDir: 'dist',
   },
   server: {
-    port: 3000,
+    // run Vite dev server on default 5173 to avoid colliding with backend port 3000
+    port: 5173,
     open: true,
+    // proxy API requests to the backend running on port 3000
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 });

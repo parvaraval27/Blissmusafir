@@ -1,9 +1,31 @@
+import { useState } from 'react';
 import { Instagram, Youtube, Linkedin, MapPin, Mail, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Link } from 'react-router-dom';
+import { apiClient } from '../lib/api';
 
 export function Footer() {
+  const [email, setEmail] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setStatusMessage('');
+
+    try {
+      await apiClient.subscribeToNewsletter(email);
+      setStatusMessage('Thanks for joining the journey.');
+      setEmail('');
+    } catch (error) {
+      setStatusMessage('Subscription failed. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <footer className="bg-stone-800 text-white">
       {/* Newsletter Section */}
@@ -16,18 +38,26 @@ export function Footer() {
             Get travel stories, destination guides, and wanderlust inspiration delivered to your inbox
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <Input 
-              type="email" 
-              placeholder="Your email address"
-              className="bg-white/10 border-white/20 text-white placeholder:text-teal-100 focus:border-white"
-            />
-            <Button 
-              className="bg-white text-teal-600 hover:bg-stone-100 font-medium px-8"
-            >
-              Subscribe
-            </Button>
-          </div>
+          <form onSubmit={handleSubscribe} className="space-y-3 max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Input 
+                type="email" 
+                placeholder="Your email address"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="bg-white/10 border-white/20 text-white placeholder:text-teal-100 focus:border-white"
+                required
+              />
+              <Button 
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-white text-teal-600 hover:bg-stone-100 font-medium px-8"
+              >
+                {isSubmitting ? 'Joining...' : 'Subscribe'}
+              </Button>
+            </div>
+            {statusMessage && <p className="text-teal-50 text-sm">{statusMessage}</p>}
+          </form>
         </div>
       </div>
 
@@ -67,7 +97,6 @@ export function Footer() {
               <li><Link to="/" className="text-stone-300 hover:text-white transition-colors duration-200">Latest Stories</Link></li>
               <li><Link to="/india" className="text-stone-300 hover:text-white transition-colors duration-200">India Adventures</Link></li>
               <li><Link to="/world" className="text-stone-300 hover:text-white transition-colors duration-200">World Travels</Link></li>
-              <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Travel Tips</a></li>
             </ul>
           </div>
 
@@ -76,8 +105,7 @@ export function Footer() {
             <h4 className="text-lg font-medium mb-4">Connect</h4>
             <ul className="space-y-2">
               <li><Link to="/contact" className="text-stone-300 hover:text-white transition-colors duration-200">Contact</Link></li>
-              <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Collaborate</a></li>
-              <li><a href="#" className="text-stone-300 hover:text-white transition-colors duration-200">Privacy Policy</a></li>
+              <li><Link to="/about" className="text-stone-300 hover:text-white transition-colors duration-200">About</Link></li>
             </ul>
           </div>
         </div>

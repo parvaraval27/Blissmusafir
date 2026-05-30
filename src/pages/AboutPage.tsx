@@ -73,7 +73,7 @@ export function AboutPage() {
             <div className="relative">
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1608661649226-796c26630764?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBibG9nZ2VyJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzU5ODcyNzA0fDA&ixlib=rb-4.1.0&q=80&w=1080"
-                alt="Arya - Travel Blogger"
+                alt="Travel Blogger"
                 className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
                 style={{ objectFit: 'cover' }}
               />
@@ -82,7 +82,7 @@ export function AboutPage() {
               </div>
             </div>
           </div>
-          <h2 className="font-serif text-4xl text-gray-900 mb-6">Hello, I'm Arya!</h2>
+          <h2 className="font-serif text-4xl text-gray-900 mb-6">Hello!</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Welcome to Bliss Musafir, where every journey becomes a story worth telling. I'm a passionate traveler, 
             photographer, and storyteller who believes that the world is a book, and those who don't travel read only one page. 
@@ -190,22 +190,29 @@ export function AboutPage() {
         </div>
 
         {/* Call to Action */}
-        <div className="text-center bg-gradient-to-r from-travel-teal to-travel-teal-dark text-white rounded-2xl p-8 md:p-12">
-          <h2 className="font-serif text-3xl mb-4">Let's Connect!</h2>
-          <p className="text-xl mb-8 opacity-90">
+        <div
+          className="text-center rounded-2xl p-8 md:p-12 shadow-xl border border-travel-teal/20 text-gray-800"
+          style={{
+            backgroundImage: 'linear-gradient(180deg, #ffffff 0%, #ffffff 100%)',
+            backgroundColor: '#ffffff',
+          }}
+        >
+          
+          <h2 className="font-serif text-3xl text-travel-teal mb-4">Let's Connect!</h2>
+          <p className="text-xl mb-8 text-white-600 max-w-3xl mx-auto">
             Join me on this incredible journey of discovery. Follow along for travel tips, 
             destination guides, and stories that will inspire your next adventure.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               onClick={() => navigate('/contact')}
-              className="bg-white text-travel-teal hover:bg-gray-100"
+              className="bg-travel-teal text-white hover:bg-travel-teal-dark"
             >
               Get in Touch
             </Button>
             <Button 
               variant="outline" 
-              className="border-white text-white hover:bg-white hover:text-travel-teal"
+              className="border-travel-teal text-travel-teal hover:bg-travel-teal hover:text-white bg-white"
               onClick={() => window.open('https://www.instagram.com/blissmusafir/', '_blank')}
             >
               Follow on Instagram
