@@ -1,0 +1,20 @@
+# Bliss Musafir
+
+> A travel blog sharing stories, experiences and guides from destinations around the world.
+
+## About
+Bliss Musafir is a travel content platform featuring curated articles, destination guides, and travel stories. The site covers destinations across mountains, coasts, deserts and more.
+
+## Content
+- Travel articles and destination guides
+- Weekly newsletter with curated travel stories
+- Blog posts organized by category
+
+## Contact
+- Email: blissmusafir@gmail.com
+- Website: https://blissmusafir.com
+
+## Pages
+- Home: https://blissmusafir.com
+- Blog: https://blissmusafir.com/blog
+- Contact: https://blissmusafir.com/contact
