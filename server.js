@@ -59,8 +59,13 @@ async function sendMail({ to, subject, html }) {
   });
 
   if (!response.ok) {
-    const err = await response.json();
-    throw new Error(`Brevo error: ${JSON.stringify(err)}`);
+    const errorText = await response.text();
+
+    try {
+      throw new Error(`Brevo error: ${JSON.stringify(JSON.parse(errorText))}`);
+    } catch {
+      throw new Error(`Brevo error: ${errorText || `HTTP ${response.status}`}`);
+    }
   }
 
   return response.json();
