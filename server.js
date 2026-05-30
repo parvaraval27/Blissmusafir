@@ -17,6 +17,7 @@ const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
 const SMTP_SECURE = process.env.SMTP_SECURE === 'true';
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
+const SMTP_TIMEOUT_MS = Number(process.env.SMTP_TIMEOUT_MS || 10000);
 const MAIL_FROM = process.env.MAIL_FROM || 'Bliss Musafir <no-reply@blissmusafir.com>';
 const ADMIN_TOKEN_SECRET = process.env.ADMIN_TOKEN_SECRET || 'change-me-in-production';
 const NEWSLETTER_CRON = process.env.NEWSLETTER_CRON || '0 9 * * 0';
@@ -36,11 +37,30 @@ function createMailer() {
     host: SMTP_HOST,
     port: SMTP_PORT,
     secure: SMTP_SECURE,
+    connectionTimeout: SMTP_TIMEOUT_MS,
+    greetingTimeout: SMTP_TIMEOUT_MS,
+    socketTimeout: SMTP_TIMEOUT_MS,
     auth: {
       user: SMTP_USER,
       pass: SMTP_PASS,
     },
   });
+}
+
+async function sendMailWithTimeout(mailer, message, timeoutMs = SMTP_TIMEOUT_MS) {
+  let timeoutId;
+
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`SMTP request timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+  });
+
+  try {
+    return await Promise.race([mailer.sendMail(message), timeoutPromise]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 function normalizeEmail(email) {
@@ -237,7 +257,7 @@ async function sendWeeklyDigest() {
       const domain = (SMTP_USER && SMTP_USER.includes('@')) ? SMTP_USER.split('@')[1] : 'blissmusafir.com';
       const customMessageId = `<digest-${Date.now()}@${domain}>`;
 
-      const info = await mailer.sendMail({
+      const info = await sendMailWithTimeout(mailer, {
         from: MAIL_FROM,
         to: subscriber.email,
         subject,
@@ -275,7 +295,7 @@ app.post('/api/contact', async (req, res) => {
     }
 
     const mailer = createMailer();
-    const info = await mailer.sendMail({
+    const info = await sendMailWithTimeout(mailer, {
       from: MAIL_FROM,
       to: CONTACT_RECIPIENT,
       replyTo: email,
