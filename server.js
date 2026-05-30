@@ -2,7 +2,6 @@ const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const cors = require('cors');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 const cron = require('node-cron');
 require('dotenv').config();
 
@@ -12,13 +11,8 @@ const ADMIN_EMAILS = ['blissmusafir@gmail.com', 'parvaraval27@gmail.com'];
 const CONTACT_RECIPIENT = 'blissmusafir@gmail.com';
 const SITE_URL = process.env.SITE_URL || 'http://localhost:5173';
 const API_URL = process.env.PUBLIC_API_URL || `http://localhost:${PORT}`;
-const SMTP_HOST = process.env.SMTP_HOST;
-const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
-const SMTP_SECURE = process.env.SMTP_SECURE === 'true';
-const SMTP_USER = process.env.SMTP_USER;
-const SMTP_PASS = process.env.SMTP_PASS;
-const SMTP_TIMEOUT_MS = Number(process.env.SMTP_TIMEOUT_MS || 10000);
-const MAIL_FROM = process.env.MAIL_FROM || 'Bliss Musafir <no-reply@blissmusafir.com>';
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const BREVO_FROM_EMAIL = process.env.BREVO_FROM_EMAIL;
 const ADMIN_TOKEN_SECRET = process.env.ADMIN_TOKEN_SECRET || 'change-me-in-production';
 const NEWSLETTER_CRON = process.env.NEWSLETTER_CRON || '0 9 * * 0';
 const CORS_ORIGINS = (process.env.CORS_ORIGIN)
@@ -45,39 +39,31 @@ app.use(express.json());
 app.use(express.static('dist'));
 app.use(express.static('public'));
 
-function createMailer() {
-  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
-    throw new Error('SMTP configuration is missing. Set SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS.');
+async function sendMail({ to, subject, html }) {
+  if (!BREVO_API_KEY || !BREVO_FROM_EMAIL) {
+    throw new Error('Brevo configuration is missing. Set BREVO_API_KEY and BREVO_FROM_EMAIL.');
   }
 
-  return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_SECURE,
-    connectionTimeout: SMTP_TIMEOUT_MS,
-    greetingTimeout: SMTP_TIMEOUT_MS,
-    socketTimeout: SMTP_TIMEOUT_MS,
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS,
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': BREVO_API_KEY,
+      'content-type': 'application/json',
     },
-  });
-}
-
-async function sendMailWithTimeout(mailer, message, timeoutMs = SMTP_TIMEOUT_MS) {
-  let timeoutId;
-
-  const timeoutPromise = new Promise((_, reject) => {
-    timeoutId = setTimeout(() => {
-      reject(new Error(`SMTP request timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
+    body: JSON.stringify({
+      sender: { email: BREVO_FROM_EMAIL },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
   });
 
-  try {
-    return await Promise.race([mailer.sendMail(message), timeoutPromise]);
-  } finally {
-    clearTimeout(timeoutId);
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(`Brevo error: ${JSON.stringify(err)}`);
   }
+
+  return response.json();
 }
 
 function normalizeEmail(email) {
@@ -261,27 +247,18 @@ async function sendWeeklyDigest() {
     return;
   }
 
-  const mailer = createMailer();
-
   for (const subscriber of activeSubscribers) {
     const unsubscribeUrl = `${API_URL}/api/newsletter/unsubscribe?token=${subscriber.unsubscribeToken}`;
     try {
-      // Use a date-specific subject so mail clients (Gmail) don't thread messages
-      const subjectDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      const subjectDate = new Date().toISOString().slice(0, 10);
       const subject = `Bliss Musafir weekly stories - ${subjectDate}`;
 
-      // Create a unique Message-ID to further reduce the chance of threading
-      const domain = (SMTP_USER && SMTP_USER.includes('@')) ? SMTP_USER.split('@')[1] : 'blissmusafir.com';
-      const customMessageId = `<digest-${Date.now()}@${domain}>`;
-
-      const info = await sendMailWithTimeout(mailer, {
-        from: MAIL_FROM,
+      const info = await sendMail({
         to: subscriber.email,
         subject,
         html: renderDigestHtml(articles, unsubscribeUrl),
-        messageId: customMessageId,
       });
-      console.log('Weekly digest sent:', { to: subscriber.email, messageId: info.messageId, accepted: info.accepted, rejected: info.rejected });
+      console.log('Weekly digest sent:', { to: subscriber.email, response: info });
     } catch (err) {
       console.error('Failed to send weekly digest to', subscriber.email, err);
     }
@@ -311,11 +288,8 @@ app.post('/api/contact', async (req, res) => {
       return res.status(400).json({ error: 'All contact form fields are required' });
     }
 
-    const mailer = createMailer();
-    const info = await sendMailWithTimeout(mailer, {
-      from: MAIL_FROM,
+    const info = await sendMail({
       to: CONTACT_RECIPIENT,
-      replyTo: email,
       subject: `Contact form: ${subject}`,
       html: `
         <div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a;">
@@ -328,7 +302,7 @@ app.post('/api/contact', async (req, res) => {
         </div>`,
     });
 
-    console.log('Contact mail sent:', { to: CONTACT_RECIPIENT, subject: `Contact form: ${subject}`, messageId: info.messageId, accepted: info.accepted, rejected: info.rejected });
+    console.log('Contact mail sent:', { to: CONTACT_RECIPIENT, response: info });
     res.json({ message: 'Message sent successfully', info });
   } catch (error) {
     console.error('Error sending contact message:', error);
