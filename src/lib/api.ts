@@ -1,5 +1,5 @@
 // Simple API client for Vite application
-const API_BASE = (import.meta as any).env.VITE_API_URL || 'https://blissmusafir-api.onrender.com';
+const API_BASE = (import.meta as any).env.VITE_API_URL || '/api';
 const ADMIN_TOKEN_KEY = 'bliss-admin-token';
 
 function getAdminToken() {
